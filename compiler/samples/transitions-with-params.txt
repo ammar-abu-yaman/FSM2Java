@@ -1,0 +1,10 @@
+${{
+    State1 {
+        Trigger1(x: int, y12: String) [#count == 5#] => State2 {#
+int x = 5;for(int i = 0; i < x; i++) {System.out.println("hello world");}
+        #},
+        Trigger2(name: java.util.ArrayList<java.util.Map<String, String>>) [#expr[5+3].whatever.equals("")#] => State3 {#
+String s = "hello" + " world";
+        #}
+    }
+}}$

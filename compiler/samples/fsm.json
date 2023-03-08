@@ -1,0 +1,31 @@
+{
+  "options": {
+    "package": ["com.sample.one23"],
+    "class": ["Sample"],
+    "initial-state": ["AnyState"],
+    "actions": ["action1", "action2", "action3"]
+  },
+  "states": [
+    {
+      "name": "State1",
+      "transitions": [
+        {
+          "trigger": {
+            "name": "open",
+            "params": [
+              {
+                "name": "param",
+                "type": "String"
+              }
+            ]
+          },
+          "guard": "param.isEmpty()",
+          "nextState": "State2",
+          "code": "System.out.println(param.trim());"
+        }
+      ],
+      "enterCode": "",
+      "exitCode": ""
+    }
+  ]
+}

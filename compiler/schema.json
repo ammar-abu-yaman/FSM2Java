@@ -1,0 +1,17 @@
+{
+  "options": [{ "name": "string", "value": ["string"] }],
+  "states": [
+    {
+      "name": "string",
+      "transitions": [
+        {
+          "name": "string",
+          "params": [{ "name": "string", "type": "string" }],
+          "guard": "string?",
+          "nextState": "string?",
+          "code": "string"
+        }
+      ]
+    }
+  ]
+}

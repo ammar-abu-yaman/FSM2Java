@@ -1,0 +1,12 @@
+$package com.sample.one23
+
+$class Sample 
+
+$initial-state AnyState
+
+$actions 
+    action1 
+    action2 
+    action3
+
+${{}}$

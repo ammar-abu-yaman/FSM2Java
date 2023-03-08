@@ -1,0 +1,22 @@
+$turnstile
+
+$class Turnstile
+
+$initial-state Locked
+
+$actions lock unlock alarm thankyou
+
+${{
+
+Locked {
+    coin(value: int) [# value >= 25 #] => 
+}
+Unlocked {
+    coin(number: int) [#number[5] >= 5#] => UnLocked {# 
+        for(int i = 0; i < 10; i++) {
+            System.out.println("hello {}");
+        }
+    #}
+}
+
+}}$

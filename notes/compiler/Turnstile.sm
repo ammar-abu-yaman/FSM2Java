@@ -1,0 +1,24 @@
+%class Turnstile
+%package turnstile
+%start MainMap::Locked
+%map MainMap
+%%
+Locked
+Entry { System.out.prinln("entered"); }
+Exit { System.out.prinln("exited"); }
+{
+    coin(x: int) [true] Unlocked { unlock(); }
+    coin(x: int) [some[5] == 3] Unlocked { unlock(); }
+    coin(x: int) [some[5] == 200] Unlocked { unlock(); }
+    pass Locked { alarm(); }
+    something nil {System.out.println("hello world");}
+    Default Locked {
+        System.out.println("hello world");
+    }
+}
+Unlocked
+{
+ pass Locked { lock(); }
+ coin nil { thankyou(); }
+}
+%%
