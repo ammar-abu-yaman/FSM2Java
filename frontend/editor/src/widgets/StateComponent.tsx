@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Circle, Group } from "react-konva";
+import { Circle, Group, Text } from "react-konva";
 import { useSetFocusedObject } from "../contexts/FocusedObjectContext";
 import { ANCHOR_OFFSETS } from "../constants";
 import { DispatchType, StateType } from "../types";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { updateState } from "../reducers/StateReducer";
-import { StateOptionBarContent } from "../util/StateOptionBarContent";
+import { StateOptionBarContent } from "../option/StateOptionBarContent";
 import { Anchors } from "./TransitionArrow";
 
 export function StateComponent({
@@ -61,6 +61,7 @@ export function StateComponent({
           strokeWidth={2}
           strokeEnabled
         />
+        <Text x={0} y={0} text={state.name} />
       </Group>
       <Anchors
         stateId={state.id}

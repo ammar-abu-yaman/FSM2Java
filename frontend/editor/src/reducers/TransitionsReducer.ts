@@ -7,6 +7,9 @@ const addTransition = createAction<TransitionType, "addTransition">(
 const removeTransition = createAction<number, "removeTransition">(
   "removeTransition"
 );
+const removeTransitions = createAction<number[], "removeTransitions">(
+  "removeTransitions"
+);
 const updateTransition = createAction<TransitionType, "updateTransition">(
   "updateTransition"
 );
@@ -46,6 +49,10 @@ const transitionsReducer = createReducer<TransitionType[]>([], (builder) =>
         (transition) => transition.id === action.payload.id
       );
       transitions[index] = action.payload;
+    })
+    .addCase(removeTransitions, (state, action) => {
+      const ids = action.payload;
+      return state.filter((transition) => ids.includes(transition.id));
     })
     .addCase(addTransitionParameter, (transitions, action) => {
       const { parameters } = transitions[action.payload];

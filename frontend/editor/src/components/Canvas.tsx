@@ -3,9 +3,13 @@ import { Stage, Layer } from "react-konva";
 import Konva from "konva";
 import { useSetFocusedObject } from "../contexts/FocusedObjectContext";
 import { SCALE_FACTOR } from "../constants";
-import { Menu, MenuItem, MenuList } from "@chakra-ui/react";
+import { Button, Menu, MenuItem, MenuList } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { addState } from "../reducers/StateReducer";
+import {
+  addDefaultState,
+  addState,
+  generateFsmCode,
+} from "../reducers/StateReducer";
 import { TransitionArrow } from "../widgets/TransitionArrow";
 import { StateComponent } from "../widgets/StateComponent";
 
@@ -82,6 +86,7 @@ export function Canvas({
 
   return (
     <>
+      <Button onClick={() => dispatch(generateFsmCode())}>Download</Button>
       <Menu isLazy isOpen={isContextMenuActive}>
         <MenuList
           position={"absolute"}
@@ -105,6 +110,25 @@ export function Canvas({
             }}
           >
             Add State
+          </MenuItem>
+          <MenuItem
+            disabled={states.find((state) => state.id === -1) !== undefined}
+            onClick={() => {
+              const position =
+                stageRef.current?.getPointerPosition() as Konva.Vector2d;
+              dispatch(
+                addDefaultState({
+                  id: -1,
+                  x: position.x,
+                  y: position.y,
+                  name: "Default",
+                  entryCode: "",
+                  exitCode: "",
+                })
+              );
+            }}
+          >
+            Add Default State
           </MenuItem>
         </MenuList>
       </Menu>

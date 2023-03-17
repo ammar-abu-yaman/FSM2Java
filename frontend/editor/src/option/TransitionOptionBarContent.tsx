@@ -1,5 +1,5 @@
 import React from "react";
-import { StateType, TransitionType } from "../types";
+import { TransitionType } from "../types";
 import {
   Button,
   FormControl,
@@ -43,25 +43,8 @@ export function TransitionOptionBarContent({
         />
       </FormControl>
       <FormControl>
-        <Button
-          onClick={() => {
-            setCodeEdition({
-              id: transitionId,
-              type: "transition",
-              label: "Edit Condition",
-              getValue: (data) =>
-                data.transitions.find((item) => item.id === transition.id)
-                  ?.condition ?? "",
-              onChange: (newValue) => {
-                dispatch(
-                  updateTransition({ ...transition, condition: newValue })
-                );
-              },
-            });
-          }}
-        >
-          Edit Condition
-        </Button>
+        <Button onClick={editCondition()}>Edit Condition</Button>
+        <Button onClick={editCode()}>Edit Code</Button>
       </FormControl>
       <FormControl>
         <Button onClick={() => dispatch(addTransitionParameter(transitionId))}>
@@ -73,6 +56,38 @@ export function TransitionOptionBarContent({
       ))}
     </VStack>
   );
+
+  function editCode() {
+    return () => {
+      setCodeEdition({
+        id: transitionId,
+        type: "transition",
+        label: "Edit Code",
+        getValue: (data) =>
+          data.transitions.find((item) => item.id === transition.id)?.code ??
+          "",
+        onChange: (newValue) => {
+          dispatch(updateTransition({ ...transition, code: newValue }));
+        },
+      });
+    };
+  }
+
+  function editCondition() {
+    return () => {
+      setCodeEdition({
+        id: transitionId,
+        type: "transition",
+        label: "Edit Condition",
+        getValue: (data) =>
+          data.transitions.find((item) => item.id === transition.id)
+            ?.condition ?? "",
+        onChange: (newValue) => {
+          dispatch(updateTransition({ ...transition, condition: newValue }));
+        },
+      });
+    };
+  }
 }
 
 function Parameter({

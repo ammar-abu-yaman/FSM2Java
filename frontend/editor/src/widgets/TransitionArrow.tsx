@@ -5,7 +5,7 @@ import { StateType, TransitionType } from "../types";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { addTransition } from "../reducers/TransitionsReducer";
 import { useSetFocusedObject } from "../contexts/FocusedObjectContext";
-import { TransitionOptionBarContent } from "../util/TransitionOptionBarContent";
+import { TransitionOptionBarContent } from "../option/TransitionOptionBarContent";
 
 export function TransitionArrow({ transitionId }: { transitionId: number }) {
   const setFocusedObject = useSetFocusedObject();
@@ -110,6 +110,7 @@ function AnchorPoint({
             }));
             return;
           }
+          if (stateId == -1) return;
           dispatch(
             addTransition({
               id: -1,
@@ -117,6 +118,7 @@ function AnchorPoint({
               destId: { stateId, anchor: point.id },
               name: "-",
               parameters: [],
+              code: "",
             })
           );
 

@@ -30,13 +30,21 @@ export type StateType = {
   exitCode: string;
 };
 
-export type TransitionType = {
+export interface Trigger {
   id: number;
   name: string;
   parameters: { name: string; type: string }[];
   condition?: string;
+  code: string;
+}
+
+export interface TransitionType extends Trigger {
   sourceId: { stateId: number; anchor: number };
   destId: { stateId: number; anchor: number };
-};
+}
+
+export interface TriggerMapping extends Trigger {
+  nextState: string;
+}
 
 export type DispatchType<T> = React.Dispatch<React.SetStateAction<T>>;

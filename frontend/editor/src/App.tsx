@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { CodeEditionProvider } from "./contexts/CodeEditionContext";
 import { Canvas } from "./components/Canvas";
-import { OptionBar } from "./components/OptionBar";
+import { OptionBar } from "./option/OptionBar";
 import { CodeEditor } from "./components/CodeEditor";
 
 function App() {
