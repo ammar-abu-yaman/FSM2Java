@@ -18,7 +18,7 @@ import com.graduation.parse.compilerParser;
 
 public class App {
   public static void main(String[] args) throws Exception {
-    var filename = "many-alterations-with-default-path";
+    var filename = "enter-exit";
     var lexer = new compilerLexer(CharStreams.fromFileName(String.format("samples/%s.txt",
         filename)));
     var tokens = new CommonTokenStream(lexer);
