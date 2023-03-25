@@ -3,31 +3,20 @@ import {
   createAsyncThunk,
   createReducer,
 } from "@reduxjs/toolkit";
-import { useSelector } from "react-redux";
-import { AppDispatch, RootType } from "../store";
+import type { RootType } from "../store";
 import { StateType } from "../types";
 import { aggregateState } from "../util/json";
-import { removeTransition } from "./TransitionsReducer";
 
-const x = createAsyncThunk("uploadFsm", async (_, api) => {
-  const data = api.getState() as RootType;
-  const fsm = aggregateState(data);
-  const result = await fetch("url", {
-    headers: { contentType: "application/json" },
-    body: JSON.stringify(fsm),
-  });
-});
 const addState = createAction<StateType, "addState">("addState");
 const addDefaultState = createAction<StateType, "addDefaultState">(
   "addDefaultState"
 );
-const removeState = createAction<number, "removeState">("removeState");
+const removeState = createAction<string, "removeState">("removeState");
 const updateState = createAction<StateType, "updateState">("updateState");
 
 const generateFsmCode = createAsyncThunk(
   "states/generateFsmCode",
   async (_input, api) => {
-    console.log("starting");
     const data = api.getState() as RootType;
     try {
       const fsm = aggregateState(data);
@@ -44,18 +33,16 @@ const generateFsmCode = createAsyncThunk(
   }
 );
 
-let nextId = 0;
-
 const statesReducer = createReducer<StateType[]>([], (builder) =>
   builder
     .addCase(addState, (states, action) => {
-      states.push({ ...action.payload, id: nextId++ });
+      states.push({ ...action.payload, id: crypto.randomUUID() });
     })
     .addCase(addDefaultState, (states, action) => {
-      states.push({ ...action.payload, id: -1 });
+      states.push({ ...action.payload, id: "default" });
     })
     .addCase(removeState, (states, action) => {
-      return states.filter((state) => state.id === action.payload);
+      return states.filter((state) => state.id !== action.payload);
     })
     .addCase(updateState, (states, action) => {
       const index = states.findIndex((state) => state.id === action.payload.id);

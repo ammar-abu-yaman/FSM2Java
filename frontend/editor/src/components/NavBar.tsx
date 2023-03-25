@@ -8,7 +8,7 @@ function NavBar(props: any) {
 
   return (
     <NavBarContainer {...props}>
-      <Box>Hello world</Box>
+      <Box>Logo</Box>
       <MenuToggle toggle={toggle} isOpen={isOpen} />
       <MenuLinks isOpen={isOpen} />
     </NavBarContainer>
@@ -88,21 +88,10 @@ function MenuLinks({ isOpen }: { isOpen: boolean }) {
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
-        <MenuItem to="/">Minha Conta</MenuItem>
-        <MenuItem to="/how"> Meus Pedidos </MenuItem>
-        <MenuItem to="/faetures"> Favoritos </MenuItem>
-        <MenuItem to="/pricing"> Recomendados </MenuItem>
-        <MenuItem to="/signup" isLast>
-          <Button
-            size="sm"
-            rounded="md"
-            color={["primary.500", "primary.500", "white", "white"]}
-            bg={["white", "white", "primary.500", "primary.500"]}
-            _hover={{
-              bg: ["primary.100", "primary.100", "primary.600", "primary.600"],
-            }}
-          >
-            Sair
+        <MenuItem to="/aboutus"> About Us </MenuItem>
+        <MenuItem to="/export" isLast>
+          <Button size={"sm"} bg="blue.600">
+            Export
           </Button>
         </MenuItem>
       </Stack>
@@ -123,10 +112,10 @@ function NavBarContainer({
       justify="space-between"
       wrap="wrap"
       w="100%"
-      mb={8}
-      p={8}
-      bg={["primary.500", "primary.500", "transparent", "transparent"]}
-      color={["white", "white", "primary.700", "primary.700"]}
+      p={2}
+      bg="main.900"
+      color="white"
+      borderBottom="1px solid rgba(255, 255, 255, 0.16)"
       {...props}
     >
       {children}

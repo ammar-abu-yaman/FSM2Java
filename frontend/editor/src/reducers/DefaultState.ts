@@ -2,8 +2,8 @@ import { createAction, createReducer } from "@reduxjs/toolkit";
 import { TriggerMapping } from "../types";
 
 const addTrigger = createAction<TriggerMapping, "addTrigger">("addTrigger");
-const removeTrigger = createAction<number, "removeTrigger">("removeTrigger");
-const removeTriggers = createAction<number[], "removeTriggers">(
+const removeTrigger = createAction<string, "removeTrigger">("removeTrigger");
+const removeTriggers = createAction<string[], "removeTriggers">(
   "removeTriggers"
 );
 const updateTrigger = createAction<TriggerMapping, "updateTrigger">(
@@ -28,14 +28,12 @@ const updateTriggerParameter = createAction<
   "updateTriggerParameter"
 >("updateTriggerParameter");
 
-let nextId = 0;
-
 export const defaultStateReducer = createReducer<TriggerMapping[]>(
   [],
   (builder) =>
     builder
       .addCase(addTrigger, (triggers, action) => {
-        triggers.push({ ...action.payload, id: nextId++ });
+        triggers.push({ ...action.payload, id: crypto.randomUUID() });
       })
       .addCase(removeTrigger, (triggers, action) => {
         return triggers.filter((trigger) => trigger.id === action.payload);

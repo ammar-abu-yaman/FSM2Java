@@ -4,40 +4,38 @@ import { TransitionType } from "../types";
 const addTransition = createAction<TransitionType, "addTransition">(
   "addTransition"
 );
-const removeTransition = createAction<number, "removeTransition">(
+const removeTransition = createAction<string, "removeTransition">(
   "removeTransition"
 );
-const removeTransitions = createAction<number[], "removeTransitions">(
+const removeTransitions = createAction<string[], "removeTransitions">(
   "removeTransitions"
 );
 const updateTransition = createAction<TransitionType, "updateTransition">(
   "updateTransition"
 );
 
-const addTransitionParameter = createAction<number, "addTransitionParameter">(
+const addTransitionParameter = createAction<string, "addTransitionParameter">(
   "addTransitionParameter"
 );
 
 const removeTransitionParameter = createAction<
-  { transitionId: number; paramId: number },
+  { transitionId: string; paramId: number },
   "removeTransitionParameter"
 >("removeTransitionParameter");
 
 const updateTransitionParameter = createAction<
   {
-    transitionId: number;
+    transitionId: string;
     paramId: number;
     param: { name?: string; type?: string };
   },
   "updateTransitionParameter"
 >("updateTransitionParameter");
 
-let nextId = 0;
-
 const transitionsReducer = createReducer<TransitionType[]>([], (builder) =>
   builder
     .addCase(addTransition, (transitions, action) => {
-      transitions.push({ ...action.payload, id: nextId++ });
+      transitions.push({ ...action.payload, id: crypto.randomUUID() });
     })
     .addCase(removeTransition, (transitions, action) => {
       return transitions.filter(
@@ -55,7 +53,9 @@ const transitionsReducer = createReducer<TransitionType[]>([], (builder) =>
       return state.filter((transition) => ids.includes(transition.id));
     })
     .addCase(addTransitionParameter, (transitions, action) => {
-      const { parameters } = transitions[action.payload];
+      const { parameters } = transitions.find(
+        (item) => item.id === action.payload
+      ) as TransitionType;
       parameters.push({
         name: `Param${parameters.length + 1}`,
         type: "String",
@@ -63,10 +63,14 @@ const transitionsReducer = createReducer<TransitionType[]>([], (builder) =>
     })
     .addCase(removeTransitionParameter, (transitions, action) => {
       const { transitionId, paramId } = action.payload;
-      transitions[transitionId].parameters.splice(paramId, 1);
+      transitions
+        .find((item) => item.id === transitionId)
+        ?.parameters?.splice?.(paramId, 1);
     })
     .addCase(updateTransitionParameter, (transitions, action) => {
-      const { parameters } = transitions[action.payload.transitionId];
+      const { parameters } = transitions.find(
+        (item) => item.id === action.payload.transitionId
+      ) as TransitionType;
       parameters[action.payload.paramId] = {
         ...parameters[action.payload.paramId],
         ...action.payload.param,
@@ -77,6 +81,7 @@ const transitionsReducer = createReducer<TransitionType[]>([], (builder) =>
 export {
   addTransition,
   removeTransition,
+  removeTransitions,
   updateTransition,
   transitionsReducer,
   addTransitionParameter,

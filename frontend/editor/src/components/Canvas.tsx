@@ -1,185 +1,221 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { DOMElement, useEffect, useRef, useState } from "react";
 import { Stage, Layer } from "react-konva";
 import Konva from "konva";
-import { useSetFocusedObject } from "../contexts/FocusedObjectContext";
 import { SCALE_FACTOR } from "../constants";
-import { Button, Menu, MenuItem, MenuList } from "@chakra-ui/react";
+import { Button, Flex, Menu, MenuItem, MenuList } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "../hooks";
+import * as joint from "jointjs";
 import {
   addDefaultState,
   addState,
   generateFsmCode,
 } from "../reducers/StateReducer";
-import { TransitionArrow } from "../widgets/TransitionArrow";
-import { StateComponent } from "../widgets/StateComponent";
+import { graph, initPaper, paper } from "./joint";
+import { CustomMenuItem } from "./CustomMenuItem";
+import { TransitionContextMenu } from "../views/TransitionView";
+import { StateContextMenu } from "../views/StateView";
 
-export function Canvas({
-  newElement,
-  setNewElement,
-}: {
-  newElement: any;
-  setNewElement: any;
-}) {
-  const layerRef = useRef<Konva.Layer>();
-  const stageRef = useRef<Konva.Stage>();
-  const setFocusedObject = useSetFocusedObject();
-  const [connection, setConnection] = useState({ from: null, to: null });
+export function Canvas() {
+  const [contextMenuObject, setContextMenuObject] = useState({
+    id: "",
+    type: "",
+  });
   const [isContextMenuActive, setIsContextMenuActive] = useState(false);
   const [contextMenuCoordinates, setContextMenuCoordinates] = useState({
     top: "0",
     left: "0",
   });
   const states = useAppSelector((state) => state.states);
-  const transitions = useAppSelector((state) => state.transitions);
   const dispatch = useAppDispatch();
+  const paperElRef = useRef(null);
 
   useEffect(() => {
-    const stage: Konva.Stage = stageRef.current as Konva.Stage;
-
-    // add zoom in and out effect to the editor
-    const onWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
-      // stop default scrolling
-      e.evt.preventDefault();
-
-      var oldScale = stage.scaleX();
-      var pointer = stage.getPointerPosition() as Konva.Vector2d;
-
-      var mousePointTo = {
-        x: (pointer.x - stage.x()) / oldScale,
-        y: (pointer.y - stage.y()) / oldScale,
-      };
-
-      // how to scale? Zoom in? Or zoom out?
-      let direction = e.evt.deltaY > 0 ? 1 : -1;
-
-      // when we zoom on trackpad, e.evt.ctrlKey is true
-      // in that case lets revert direction
-      if (e.evt.ctrlKey) {
-        direction = -direction;
-      }
-
-      var newScale =
-        direction > 0 ? oldScale * SCALE_FACTOR : oldScale / SCALE_FACTOR;
-
-      stage.scale({ x: newScale, y: newScale });
-
-      var newPos = {
-        x: pointer.x - mousePointTo.x * newScale,
-        y: pointer.y - mousePointTo.y * newScale,
-      };
-      stage.position(newPos);
-    };
+    if (!paperElRef.current) return;
+    if (!paper) initPaper(paperElRef.current);
 
     const onWindowClick = () => {
       // hide menu
+      setContextMenuObject({ id: "", type: "" });
       setIsContextMenuActive(false);
     };
 
-    stage.on("wheel", onWheel);
+    const onContextMenuBlank = (evt: any, x: number, y: number) => {
+      evt.preventDefault();
+      setContextMenuCoordinates({
+        left: `${evt.pageX}`,
+        top: `${evt.pageY}`,
+      });
+      setIsContextMenuActive(true);
+    };
+
+    const onContextMenuLink = (view, evt, x: number, y: number) => {
+      evt.preventDefault();
+      setContextMenuCoordinates({
+        left: `${evt.pageX}`,
+        top: `${evt.pageY}`,
+      });
+      setIsContextMenuActive(true);
+      setContextMenuObject({ id: view.model.id, type: "transition" });
+    };
+
+    const onContextMenuElement = (view, evt, x: number, y: number) => {
+      evt.preventDefault();
+      setContextMenuCoordinates({
+        left: `${evt.pageX}`,
+        top: `${evt.pageY}`,
+      });
+      setIsContextMenuActive(true);
+      setContextMenuObject({ id: view.model.id, type: "state" });
+    };
+
+    const onWheel = (evt: any, x: number, y: number, delta: number) => {
+      const MIN_SCALE = 0.4,
+        MAX_SCALE = 2.5;
+
+      evt.preventDefault();
+
+      const oldScale = paper.scale().sx;
+      const newScale = oldScale + delta * 0.1;
+
+      if (newScale >= MIN_SCALE && newScale <= MAX_SCALE) {
+        const currentScale = paper.scale().sx;
+
+        const beta = currentScale / newScale;
+
+        const ax = x - x * beta;
+        const ay = y - y * beta;
+
+        const translate = paper.translate();
+
+        const nextTx = translate.tx - ax * newScale;
+        const nextTy = translate.ty - ay * newScale;
+
+        paper.translate(nextTx, nextTy);
+
+        const ctm = paper.matrix();
+
+        ctm.a = newScale;
+        ctm.d = newScale;
+
+        paper.matrix(ctm);
+      }
+    };
+    const onWheelCell = (
+      cell: any,
+      evt: any,
+      x: number,
+      y: number,
+      delta: number
+    ) => onWheel(evt, x, y, delta);
+
+    paper.on("blank:contextmenu", onContextMenuBlank);
+    paper.on("link:contextmenu", onContextMenuLink);
+    paper.on("element:contextmenu", onContextMenuElement);
+    paper.on("cell:mousewheel", onWheelCell);
+    paper.on("blank:mousewheel", onWheel);
     window.addEventListener("click", onWindowClick);
     return () => {
       // remove unneeded event listners
-      stage.removeEventListener("wheel");
+      (paper as any).off("cell:mousewheel", onWheelCell);
+      (paper as any).off("blank:mousewheel", onWheel);
+      (paper as any).off("blank:contextmenu", onContextMenuBlank);
+      (paper as any).off("link:contextmenu", onContextMenuLink);
+      (paper as any).off("element:contextmenu", onContextMenuElement);
+      graph.clear();
       window.removeEventListener("click", onWindowClick);
     };
-  }, [newElement]);
+  }, []);
 
   return (
     <>
-      <Button onClick={() => dispatch(generateFsmCode())}>Download</Button>
       <Menu isLazy isOpen={isContextMenuActive}>
         <MenuList
+          borderColor={"gray.300"}
           position={"absolute"}
           top={contextMenuCoordinates.top}
           left={contextMenuCoordinates.left}
+          color="white"
+          bg="#212226"
         >
-          <MenuItem
-            onClick={() => {
-              const position =
-                stageRef.current?.getPointerPosition() as Konva.Vector2d;
-              dispatch(
-                addState({
-                  id: states.length,
-                  x: position.x,
-                  y: position.y,
-                  name: "State",
-                  entryCode: "",
-                  exitCode: "",
-                })
-              );
-            }}
-          >
-            Add State
-          </MenuItem>
-          <MenuItem
-            disabled={states.find((state) => state.id === -1) !== undefined}
-            onClick={() => {
-              const position =
-                stageRef.current?.getPointerPosition() as Konva.Vector2d;
-              dispatch(
-                addDefaultState({
-                  id: -1,
-                  x: position.x,
-                  y: position.y,
-                  name: "Default",
-                  entryCode: "",
-                  exitCode: "",
-                })
-              );
-            }}
-          >
-            Add Default State
-          </MenuItem>
+          <ContextMenuContent
+            contextMenuCoordinates={contextMenuCoordinates}
+            contextObject={contextMenuObject}
+          />
         </MenuList>
       </Menu>
-      <Stage
-        onContextMenu={(e) => {
-          let stage = stageRef.current;
-          if (!stage) return;
-          var containerRect = stage.container().getBoundingClientRect();
-          setContextMenuCoordinates({
-            top:
-              containerRect.top +
-              (stage?.getPointerPosition()?.y as number) +
-              4 +
-              "px",
-            left:
-              containerRect.left +
-              (stage?.getPointerPosition()?.x as number) +
-              4 +
-              "px",
-          });
+      <div id="holder" ref={paperElRef} />
+    </>
+  );
+}
 
-          e.evt.preventDefault();
-          if (e.target !== stageRef.current) {
-            setIsContextMenuActive(false);
-            return;
-          }
-          setIsContextMenuActive(true);
-        }}
-        ref={stageRef as any}
-        width={window.innerWidth}
-        height={window.innerHeight}
-        onClick={(e) => {
-          if (e.target === stageRef.current) {
-            setFocusedObject(null);
-          }
-        }}
-      >
-        <Layer ref={layerRef as any}>
-          {states.map((state) => (
-            <StateComponent
-              key={state.id}
-              stateId={state.id}
-              connection={connection}
-              setConnection={setConnection}
-            />
-          ))}
-          {transitions.map((transition) => (
-            <TransitionArrow key={transition.id} transitionId={transition.id} />
-          ))}
-        </Layer>
-      </Stage>
+function ContextMenuContent({
+  contextMenuCoordinates,
+  contextObject,
+}: {
+  contextObject: { id: string; type: string };
+  contextMenuCoordinates: { top: string; left: string };
+}) {
+  switch (contextObject.type) {
+    case "state":
+      return <StateContextMenu id={contextObject.id} />;
+    case "transition":
+      return <TransitionContextMenu id={contextObject.id} />;
+    default:
+      return (
+        <DefaultContextMenu contextMenuCoordinates={contextMenuCoordinates} />
+      );
+  }
+}
+
+function DefaultContextMenu({
+  contextMenuCoordinates,
+}: {
+  contextMenuCoordinates: { top: string; left: string };
+}) {
+  const dispatch = useAppDispatch();
+  const states = useAppSelector((data) => data.states);
+  const addDefaultStateAction = () => {
+    const { x, y } = paper.clientToLocalPoint(
+      parseFloat(contextMenuCoordinates.left),
+      parseFloat(contextMenuCoordinates.top)
+    );
+    dispatch(
+      addDefaultState({
+        id: "default",
+        x,
+        y,
+        name: "Default",
+        entryCode: "",
+        exitCode: "",
+      })
+    );
+  };
+  const addStateAction = () => {
+    const { x, y } = paper.clientToLocalPoint(
+      parseFloat(contextMenuCoordinates.left),
+      parseFloat(contextMenuCoordinates.top)
+    );
+
+    dispatch(
+      addState({
+        id: "",
+        x,
+        y,
+        name: "State",
+        entryCode: "",
+        exitCode: "",
+      })
+    );
+  };
+
+  return (
+    <>
+      <CustomMenuItem text="Add State" onClick={addStateAction} />
+      <CustomMenuItem
+        text="Add Default State"
+        hidden={states.some((state) => state.id === "default")}
+        onClick={addDefaultStateAction}
+      />
     </>
   );
 }

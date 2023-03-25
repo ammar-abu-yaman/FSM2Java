@@ -1,26 +1,29 @@
 import React from "react";
 import { TransitionType } from "../types";
 import {
+  Box,
   Button,
+  Divider,
   FormControl,
   FormLabel,
   HStack,
   Input,
   VStack,
+  Text,
 } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { useSetCodeEdition } from "../contexts/CodeEditionContext";
 import {
   addTransitionParameter,
   removeTransitionParameter,
   updateTransition,
   updateTransitionParameter,
 } from "../reducers/TransitionsReducer";
+import { setCodeEdition } from "../reducers/SettingsReducer";
 
 export function TransitionOptionBarContent({
   transitionId,
 }: {
-  transitionId: number;
+  transitionId: string;
 }) {
   const dispatch = useAppDispatch();
   const transition = useAppSelector(
@@ -30,24 +33,55 @@ export function TransitionOptionBarContent({
       ) as TransitionType
   );
 
-  const setCodeEdition = useSetCodeEdition();
   return (
-    <VStack>
-      <FormControl mb={3}>
-        <FormLabel>Name</FormLabel>
+    <VStack color={"whiteAlpha.800"} p="3">
+      <Box>
+        <Text fontSize={"lg"}>Transition Settings</Text>
+      </Box>
+      <Divider orientation="horizontal" />
+      <HStack mt="5" mb="1.5" alignItems="center">
+        <FormLabel width={"30%"}>Name</FormLabel>
         <Input
+          bg="blackAlpha.500"
+          width={"80%"}
           value={transition.name}
           onChange={(e) =>
             dispatch(updateTransition({ ...transition, name: e.target.value }))
           }
         />
+      </HStack>
+
+      <FormControl>
+        <Button
+          mt={"1.5"}
+          mb={"2"}
+          bg="gray.700"
+          _hover={{ background: "gray.500" }}
+          _active={{ background: "gray.600" }}
+          onClick={editCondition()}
+        >
+          Edit Condition
+        </Button>
       </FormControl>
       <FormControl>
-        <Button onClick={editCondition()}>Edit Condition</Button>
-        <Button onClick={editCode()}>Edit Code</Button>
+        <Button
+          mb={"2"}
+          bg="gray.700"
+          _hover={{ background: "gray.500" }}
+          _active={{ background: "gray.600" }}
+          onClick={editCode()}
+        >
+          Edit Code
+        </Button>
       </FormControl>
       <FormControl>
-        <Button onClick={() => dispatch(addTransitionParameter(transitionId))}>
+        <Button
+          mb={"2"}
+          bg="gray.700"
+          _hover={{ background: "gray.500" }}
+          _active={{ background: "gray.600" }}
+          onClick={() => dispatch(addTransitionParameter(transitionId))}
+        >
           Add Parameter
         </Button>
       </FormControl>
@@ -59,33 +93,37 @@ export function TransitionOptionBarContent({
 
   function editCode() {
     return () => {
-      setCodeEdition({
-        id: transitionId,
-        type: "transition",
-        label: "Edit Code",
-        getValue: (data) =>
-          data.transitions.find((item) => item.id === transition.id)?.code ??
-          "",
-        onChange: (newValue) => {
-          dispatch(updateTransition({ ...transition, code: newValue }));
-        },
-      });
+      dispatch(
+        setCodeEdition({
+          id: transitionId,
+          type: "transition",
+          label: "Edit Code",
+          getValue: (data) =>
+            data.transitions.find((item) => item.id === transition.id)?.code ??
+            "",
+          onChange: (newValue) => {
+            dispatch(updateTransition({ ...transition, code: newValue }));
+          },
+        })
+      );
     };
   }
 
   function editCondition() {
     return () => {
-      setCodeEdition({
-        id: transitionId,
-        type: "transition",
-        label: "Edit Condition",
-        getValue: (data) =>
-          data.transitions.find((item) => item.id === transition.id)
-            ?.condition ?? "",
-        onChange: (newValue) => {
-          dispatch(updateTransition({ ...transition, condition: newValue }));
-        },
-      });
+      dispatch(
+        setCodeEdition({
+          id: transitionId,
+          type: "transition",
+          label: "Edit Condition",
+          getValue: (data) =>
+            data.transitions.find((item) => item.id === transition.id)
+              ?.condition ?? "",
+          onChange: (newValue) => {
+            dispatch(updateTransition({ ...transition, condition: newValue }));
+          },
+        })
+      );
     };
   }
 }

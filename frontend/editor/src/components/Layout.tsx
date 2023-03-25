@@ -6,7 +6,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <NavBar />
-      <Flex width={"full"} wrap="nowrap">
+      <Flex bg="#383c4a" width={"full"} wrap="nowrap">
         {children}
       </Flex>
     </>

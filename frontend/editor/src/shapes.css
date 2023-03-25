@@ -1,0 +1,38 @@
+:root {
+  --state-color: #4b5162;
+  --transition-color: #eae1e1;
+  --default-state-color: #617143;
+}
+
+.state-body {
+  fill: var(--state-color);
+  stroke: var(--state-color);
+  stroke-linejoin: round;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+}
+
+.state-label {
+  font-size: 24px;
+  fill: white;
+}
+
+.transition-line {
+  stroke: var(--transition-color);
+}
+
+.transition-arrow {
+  fill: var(--transition-color);
+  stroke: var(--transition-color);
+}
+
+.default-state-body {
+  fill: var(--default-state-color);
+  stroke: var(--default-state-color);
+  stroke-linejoin: round;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+}
+
+.default-state-label {
+  font-size: 24px;
+  fill: white;
+}

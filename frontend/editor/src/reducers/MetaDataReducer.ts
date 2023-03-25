@@ -5,6 +5,8 @@ type UpdatableMetaData = {
   package?: string;
   className?: string;
   initialState?: string;
+  contextMenuCoordinates?: { left: number; top: number };
+  isContextMenuActive?: boolean;
 };
 
 const updateMetaData = createAction<UpdatableMetaData, "updateMetaData">(
@@ -18,11 +20,17 @@ const updateAction = createAction<
 >("updateAction");
 
 export const metaDataReducer = createReducer<MetaData>(
-  { package: "", className: "", actions: [] },
+  {
+    package: "",
+    className: "",
+    actions: [],
+    contextMenuCoordinates: { left: 0, top: 0 },
+    isContextMenuActive: false,
+  },
   (builder) =>
     builder
       .addCase(updateMetaData, (state, action) => {
-        return { ...state, ...action.payload };
+        return { ...state, ...(action.payload as any) };
       })
       .addCase(addAction, (state, action) => {
         state.actions.push("");

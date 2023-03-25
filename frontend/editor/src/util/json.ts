@@ -30,14 +30,13 @@ export function aggregateState(data: RootType): FsmJson {
     enterCode: state.entryCode,
     exitCode: state.exitCode,
     transitions: data.transitions
-      .filter((transition) => transition.sourceId.stateId === state.id)
+      .filter((transition) => transition.source === state.id)
       .map((transition) => ({
         name: transition.name,
         params: transition.parameters,
         guard: transition.condition,
-        nextState: data.states.find(
-          (state) => state.id === transition.destId.stateId
-        )?.name,
+        nextState: data.states.find((state) => state.id === transition.target)
+          ?.name,
         code: transition.code,
       })),
   }));

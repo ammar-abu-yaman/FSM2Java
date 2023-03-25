@@ -1,13 +1,14 @@
 import { RootType } from "./store";
+import { OptionBarVariant } from "./util/optionbars";
 
 export type FocusedObject = {
-  id: number;
+  id: string;
   type: string;
-  optionBarContent: () => JSX.Element;
+  optionbar: OptionBarVariant;
 };
 
 export type CodeEdition = {
-  id: number;
+  id: string;
   type: string;
   label: string;
   getValue: (state: RootType) => string;
@@ -19,10 +20,12 @@ export type MetaData = {
   className: string;
   initialState?: string;
   actions: string[];
+  contextMenuCoordinates?: { left: number; top: number };
+  isContextMenuActive: boolean;
 };
 
 export type StateType = {
-  id: number;
+  id: string;
   name: string;
   x: number;
   y: number;
@@ -31,7 +34,7 @@ export type StateType = {
 };
 
 export interface Trigger {
-  id: number;
+  id: string;
   name: string;
   parameters: { name: string; type: string }[];
   condition?: string;
@@ -39,8 +42,8 @@ export interface Trigger {
 }
 
 export interface TransitionType extends Trigger {
-  sourceId: { stateId: number; anchor: number };
-  destId: { stateId: number; anchor: number };
+  source: string;
+  target: string;
 }
 
 export interface TriggerMapping extends Trigger {

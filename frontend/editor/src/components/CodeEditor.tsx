@@ -8,24 +8,21 @@ import {
   DrawerCloseButton,
   Textarea,
 } from "@chakra-ui/react";
-import { useAppSelector } from "../hooks";
-import {
-  useCodeEdition,
-  useSetCodeEdition,
-} from "../contexts/CodeEditionContext";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { setCodeEdition } from "../reducers/SettingsReducer";
 
 export function CodeEditor() {
-  const codeEdition = useCodeEdition();
-  const setCodeEdition = useSetCodeEdition();
+  const dispatch = useAppDispatch();
+  const codeEdition = useAppSelector((data) => data.settings.codeEdition);
   const defaultValueGetter = () => "";
   const value = useAppSelector(codeEdition?.getValue ?? defaultValueGetter);
 
   return (
     <>
       <Drawer
-        isOpen={codeEdition !== null}
+        isOpen={codeEdition as any}
         placement="bottom"
-        onClose={() => setCodeEdition(null)}
+        onClose={() => dispatch(setCodeEdition(null))}
         size={"xl"}
       >
         <DrawerOverlay />
