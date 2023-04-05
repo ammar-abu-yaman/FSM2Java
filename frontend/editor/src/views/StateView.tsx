@@ -33,6 +33,7 @@ export function createStateView(
 
   (view.findView(paper) as any).on("element:pointerclick", onClick);
   view.findView(paper).addTools(tools);
+  view.findView(paper).hideTools();
 }
 
 export function createDefaultStateView(

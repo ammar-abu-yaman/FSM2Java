@@ -1,19 +1,14 @@
-import React, { DOMElement, useEffect, useRef, useState } from "react";
-import { Stage, Layer } from "react-konva";
-import Konva from "konva";
+import React, { useEffect, useRef, useState } from "react";
 import { SCALE_FACTOR } from "../constants";
-import { Button, Flex, Menu, MenuItem, MenuList } from "@chakra-ui/react";
+import { Menu, MenuList } from "@chakra-ui/react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import * as joint from "jointjs";
-import {
-  addDefaultState,
-  addState,
-  generateFsmCode,
-} from "../reducers/StateReducer";
+import { addDefaultState, addState } from "../reducers/StateReducer";
 import { graph, initPaper, paper } from "./joint";
 import { CustomMenuItem } from "./CustomMenuItem";
 import { TransitionContextMenu } from "../views/TransitionView";
 import { StateContextMenu } from "../views/StateView";
+import { setFocusedObject } from "../reducers/SettingsReducer";
 
 export function Canvas() {
   const [contextMenuObject, setContextMenuObject] = useState({
@@ -25,8 +20,9 @@ export function Canvas() {
     top: "0",
     left: "0",
   });
-  const states = useAppSelector((state) => state.states);
+
   const dispatch = useAppDispatch();
+
   const paperElRef = useRef(null);
 
   useEffect(() => {
@@ -100,7 +96,7 @@ export function Canvas() {
         paper.matrix(ctm);
       }
     };
-    const onWheelCell = (
+    const cellWheel = (
       cell: any,
       evt: any,
       x: number,
@@ -108,19 +104,45 @@ export function Canvas() {
       delta: number
     ) => onWheel(evt, x, y, delta);
 
+    const cellClick = (cellView) => {
+      console.log(cellView);
+      cellView.showTools();
+    };
+
+    const clickUnfocus = () => {
+      dispatch(setFocusedObject(null));
+      paper.hideTools();
+    };
+
+    paper.on("link:pointerclick element:pointerclick", cellClick);
+
+    paper.on("blank:pointerclick cell:pointerclick", clickUnfocus);
+
     paper.on("blank:contextmenu", onContextMenuBlank);
     paper.on("link:contextmenu", onContextMenuLink);
     paper.on("element:contextmenu", onContextMenuElement);
-    paper.on("cell:mousewheel", onWheelCell);
+    paper.on("cell:mousewheel", cellWheel);
     paper.on("blank:mousewheel", onWheel);
     window.addEventListener("click", onWindowClick);
+
+    paper.hideTools();
+
     return () => {
+      // bypass typescript typesystem
+      let paperAny = paper as any;
       // remove unneeded event listners
-      (paper as any).off("cell:mousewheel", onWheelCell);
-      (paper as any).off("blank:mousewheel", onWheel);
-      (paper as any).off("blank:contextmenu", onContextMenuBlank);
-      (paper as any).off("link:contextmenu", onContextMenuLink);
-      (paper as any).off("element:contextmenu", onContextMenuElement);
+      paperAny.off("cell:mousewheel", cellWheel);
+      paperAny.off("blank:mousewheel", onWheel);
+      paperAny.off("blank:contextmenu", onContextMenuBlank);
+      paperAny.off("link:contextmenu", onContextMenuLink);
+      paperAny.off("element:contextmenu", onContextMenuElement);
+
+      paperAny.off("element:contextmenu", onContextMenuElement);
+
+      paperAny.off("link:pointerclick element:pointerclick", cellClick);
+
+      paperAny.off("blank:pointerclick cell:pointerclick", clickUnfocus);
+
       graph.clear();
       window.removeEventListener("click", onWindowClick);
     };

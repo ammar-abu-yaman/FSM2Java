@@ -6,10 +6,14 @@ import { addState, updateState } from "../reducers/StateReducer";
 import {
   addTransition,
   removeTransition,
+  updateTransition,
 } from "../reducers/TransitionsReducer";
 import { RootType } from "../store";
 import { StateType, TransitionType } from "../types";
-import { createTransitionView } from "../views/TransitionView";
+import {
+  createTransitionView,
+  getTransitionLabel,
+} from "../views/TransitionView";
 
 const transitionsListener = createListenerMiddleware();
 
@@ -30,6 +34,22 @@ transitionsListener.startListening({
     api.dispatch(setFocusedObject(null));
     const id = action.payload;
     graph.getCell(id).remove();
+  },
+});
+
+transitionsListener.startListening({
+  actionCreator: updateTransition,
+  effect: (action, api) => {
+    const transition = action.payload;
+    const view = graph.getCell(transition.id) as joint.shapes.standard.Link;
+    view.removeLabel(0);
+    view.appendLabel({
+      attrs: {
+        text: {
+          text: getTransitionLabel(transition),
+        },
+      },
+    });
   },
 });
 

@@ -78,13 +78,3 @@ function getNewState(oldStates: StateType[], newStates: StateType[]) {
 }
 
 export default statesListener;
-
-// export default listenerMiddleware;
-
-// const store = configureStore({
-//   reducer: {
-//     todos: todosReducer,
-//   },
-//   middleware: (getDefaultMiddleware) =>
-//     getDefaultMiddleware().prepend(listenerMiddleware.middleware),
-// });
