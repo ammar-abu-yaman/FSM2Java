@@ -138,8 +138,8 @@ function Parameter({
   const dispatch = useAppDispatch();
   const { name, type } = transition.parameters[paramId];
   return (
-    <HStack>
-      <VStack>
+    <HStack alignItems={"flex-end"}>
+      <VStack alignItems={"flex-start"}>
         <FormLabel>Name</FormLabel>
         <Input
           value={name}
@@ -154,7 +154,7 @@ function Parameter({
           }
         />
       </VStack>
-      <VStack>
+      <VStack alignItems={"flex-start"}>
         <FormLabel>Type</FormLabel>
         <Input
           value={type}
@@ -171,6 +171,9 @@ function Parameter({
       </VStack>
       <VStack>
         <Button
+          bg="red.700"
+          _hover={{ background: "red.500" }}
+          _active={{ background: "red.600" }}
           onClick={() =>
             dispatch(
               removeTransitionParameter({
