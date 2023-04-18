@@ -1,102 +1,106 @@
 package com.graduation;
 
-import java.io.File;
+import static java.lang.String.format;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.graduation.fsm.Fsm;
-import com.graduation.fsm.Item;
+import com.graduation.generate.Generator;
 import com.graduation.generate.JavaGenerator;
-import com.graduation.parse.StandaloneCompilerVisitor;
-import com.graduation.parse.compilerLexer;
-import com.graduation.parse.compilerParser;
+import com.graduation.parse.FsmJParser;
+import com.graduation.parse.FsmParser;
+import com.graduation.parse.JsonParser;
 
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.ZipParameters;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 public class App {
-  public static void main(String[] args) throws Exception {
-    // System.out.println(System.getProperty("name"));
 
-    var inputFileName = System.getProperty("srcname");
-    var inputFileFormat = System.getProperty("srcformat") == null ? "txt" : System.getProperty("srcformat");
-    var outputFileName = System.getProperty("zipname") == null ? inputFileName : System.getProperty("zipname");
+	public static void main(String[] args) {
+		try {
+			ArgumentParser argParser = getArgParser();
+			Namespace results = argParser.parseArgs(args);
+			Path specPath = getSpecPath(results.<String>getList("spec").get(0));
+			Path outputPath = createOutputDir(results.getString("output"));
+			FsmParser parser = getParser(results.getString("format"));
 
-    if(inputFileFormat.equals("json"))
-      generateByJSON(inputFileName);
-    else if(inputFileFormat.equals("txt") || inputFileFormat.isEmpty())
-      generateByTxt(inputFileName);
-    else{
-      System.out.println("Invalid file format!");
-      System.exit(-1);
-    }
-    compressGeneratedFiles(inputFileName, outputFileName);
-  }
+			Fsm fsm = parser.parse(specPath.toFile());
+			Generator generator = getGenerator(outputPath, fsm, results.getString("language"));
+			generator.generate();
 
-  public static void generateByJSON(String inputFileName) throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.registerModule(new Jdk8Module());
-    String json = """
-    {
-    "name": "State1",
-    "transitions": [
-    {
-    "trigger": {
-    "name": "open",
-    "params": [
-    {
-    "name": "param",
-    "type": "String"
-    }
-    ]
-    },
-    "guard": "param.isEmpty()",
-    "nextState": "State2",
-    "code": "System.out.println(param.trim());"
-    }
-    ],
-    "enterCode": "",
-    "exitCode": ""
-    }
-    """;
-    Item.State state = mapper.readValue(json, new TypeReference<Item.State>() {
+		} catch (ArgumentParserException | FileNotFoundException exc) {
+			System.out.println(exc.getMessage());
+			System.exit(1);
+		} catch (Exception exc) {
+			System.out.println("Unexpected Error occured: " + exc.getMessage());
+			System.exit(1);
+		}
+	}
 
-    });
-    System.out.println(state.transitions().get(0));
-  }
+	private static JavaGenerator getGenerator(Path outputPath, Fsm fsm, String language) {
+		switch (language) {
+			case "java":
+				return new JavaGenerator(fsm, outputPath);
+		}
+		return null;
+	}
 
-  public static void generateByTxt(String inputFileName) throws Exception {
-    var lexer = new compilerLexer(CharStreams.fromFileName(String.format("samples/%s.txt",
-    inputFileName)));
-    var tokens = new CommonTokenStream(lexer);
-    var parser = new compilerParser(tokens);
-    var tree = parser.program();
-    var visitor = new StandaloneCompilerVisitor();
-    Fsm fsm = (Fsm) visitor.visit(tree);
-    Path path = Paths.get("outputs", inputFileName);
-    JavaGenerator generator = new JavaGenerator(fsm, path);
-    generator.generate();
-  }
+	private static Path createOutputDir(String path) throws IOException {
+		if (path == null)
+			path = "output";
+		return Files.createDirectories(Paths.get(path));
+	}
 
-  public static void compressGeneratedFiles(String inputFileName, String outputFileName) throws Exception {
-    File fileToBeCreated = new File(String.format("outputs/%s.zip", outputFileName));
-    File directory = new File(String.format("outputs/%s", inputFileName));
-    ZipFile zipFile = new ZipFile(fileToBeCreated);
-    ZipParameters params = new ZipParameters();
-    params.setIncludeRootFolder(false);
-    fileToBeCreated.delete();
-    zipFile.addFolder(directory, params);
-    String[]entries = directory.list();
-    for(String s: entries){
-      File currentFile = new File(directory.getPath(),s);
-      currentFile.delete();
-    }
-    directory.delete();
-  }
+	private static FsmParser getParser(String format) {
+		switch (format) {
+			case "fsmj":
+				return new FsmJParser();
+			case "json":
+				return new JsonParser();
+		}
+		return null;
+	}
+
+	private static Path getSpecPath(String spec) throws FileNotFoundException {
+		System.out.println(spec);
+		Path path = Paths.get(spec);
+		if (!path.toFile().exists() || !path.toFile().exists())
+			throw new FileNotFoundException(format("Error: file '%s' not found", spec));
+		return path;
+	}
+
+	private static ArgumentParser getArgParser() {
+		ArgumentParser parser = ArgumentParsers.newFor("Compiler")
+				.build()
+				.description("Compiler for Fsm2J project")
+				.defaultHelp(true);
+
+		parser.addArgument("spec")
+				.nargs(1)
+				.help("Specifies the input spec file path");
+
+		parser.addArgument("-f", "--format")
+				.choices("json", "fsmj")
+				.setDefault("fsmj")
+				.help("Specify the format of the input spec file");
+
+		parser.addArgument("-l", "--language")
+				.choices("java")
+				.setDefault("java")
+				.help("Specify the output language of the generated code");
+
+		parser.addArgument("-o", "--output")
+				.type(String.class)
+				.setDefault("")
+				.help("Specify output directory of the compiler");
+
+		return parser;
+	}
+
 }

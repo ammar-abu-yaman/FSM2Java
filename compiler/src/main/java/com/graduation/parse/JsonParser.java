@@ -3,6 +3,8 @@ package com.graduation.parse;
 import com.graduation.fsm.Fsm;
 import com.graduation.fsm.Item.*;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
@@ -18,17 +20,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 
 public class JsonParser implements FsmParser {
-    String json;
-    ObjectMapper mapper;
+    private String json;
+    private ObjectMapper mapper;
 
-    public JsonParser(String json) {
-        this.json = json;
-        this.mapper = new ObjectMapper();
-        this.mapper.registerModule(new Jdk8Module());
+    public JsonParser() {
+        mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
     }
 
     @Override
-    public Fsm parse() throws Exception {
+    public Fsm parse(File file) throws Exception {
+        json = Files.readString(file.toPath());
         var root = mapper.readTree(json);
         var optionsNode = root.get("options");
         var statesNode = root.get("states");

@@ -10,7 +10,7 @@ import { TransitionContextMenu } from "../views/TransitionView";
 import { StateContextMenu } from "../views/StateView";
 import { setFocusedObject } from "../reducers/SettingsReducer";
 
-export function Canvas() {
+export function Canvas(): JSX.Element {
   const [contextMenuObject, setContextMenuObject] = useState({
     id: "",
     type: "",
@@ -203,10 +203,10 @@ function DefaultContextMenu({
     );
     dispatch(
       addDefaultState({
-        id: "default",
+        id: "base",
         x,
         y,
-        name: "Default",
+        name: "Base",
         entryCode: "",
         exitCode: "",
       })
@@ -234,8 +234,8 @@ function DefaultContextMenu({
     <>
       <CustomMenuItem text="Add State" onClick={addStateAction} />
       <CustomMenuItem
-        text="Add Default State"
-        hidden={states.some((state) => state.id === "default")}
+        text="Add Base State"
+        hidden={states.some((state) => state.id === "base")}
         onClick={addDefaultStateAction}
       />
     </>

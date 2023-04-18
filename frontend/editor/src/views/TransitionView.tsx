@@ -92,7 +92,7 @@ export class CustomLinkView extends joint.dia.LinkView {
     return (
       !targetView ||
       !(targetView instanceof joint.dia.ElementView) ||
-      (targetView as any).model.id === "default"
+      (targetView as any).model.id === "base"
     );
   }
 
@@ -140,7 +140,7 @@ export class CustomLinkView extends joint.dia.LinkView {
     store.dispatch(updateTransition({ ...transition, source, target }));
   }
   getTarget(target: string, viewTargetId: any) {
-    if (!viewTargetId || viewTargetId === "default") return target;
+    if (!viewTargetId || viewTargetId === "base") return target;
     return viewTargetId;
   }
   getSource(source: string, viewSourceId: any) {

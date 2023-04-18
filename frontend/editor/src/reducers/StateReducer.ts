@@ -39,7 +39,7 @@ const statesReducer = createReducer<StateType[]>([], (builder) =>
       states.push({ ...action.payload, id: crypto.randomUUID() });
     })
     .addCase(addDefaultState, (states, action) => {
-      states.push({ ...action.payload, id: "default" });
+      states.push({ ...action.payload, id: "base" });
     })
     .addCase(removeState, (states, action) => {
       return states.filter((state) => state.id !== action.payload);

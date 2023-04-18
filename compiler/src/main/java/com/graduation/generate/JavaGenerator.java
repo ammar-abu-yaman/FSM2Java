@@ -44,8 +44,8 @@ public class JavaGenerator extends Generator {
         outputPath.toFile().mkdirs();
         generateActionsInterface();
         generateContextClass();
+        generateParentStateClass();
         generateBaseStateClass();
-        generateDefaultStateClass();
         generateStateClasses();
     }
 
@@ -90,15 +90,15 @@ public class JavaGenerator extends Generator {
                 """, contextClass, ownerClass, initialStateClass), 1);
     }
 
-    private void generateDefaultStateClass() {
-        State defaultState = getStateByName("Default").orElseGet(() -> new State("Default", List.of()));
+    private void generateBaseStateClass() {
+        State defaultState = getStateByName("Base").orElseGet(() -> new State("Base", List.of()));
         generateState(defaultState, 0);
     }
 
     private void generateStateClasses() {
         int stateId = 1;
         for (State state : fsm.getStates()) {
-            if (state.name().equals("Default"))
+            if (state.name().equals("Base"))
                 continue;
             generateState(state, stateId++);
         }
@@ -134,7 +134,7 @@ public class JavaGenerator extends Generator {
 
     private void generateStateHeader(JavaWriter writer, State state, int stateId) {
         String className = state.name();
-        String baseClassName = className.equals("Default") ? stateClass : "Default";
+        String baseClassName = className.equals("Base") ? stateClass : "Base";
         writer.writePackage(packageName);
         writer.writeEmptyLine();
         writer.writeClassHeader(className, List.of("public"), Optional.of(baseClassName));
@@ -240,23 +240,23 @@ public class JavaGenerator extends Generator {
         return -1;
     }
 
-    private void generateBaseStateClass() {
+    private void generateParentStateClass() {
         Path filePath = outputPath.resolve(stateClass + ".java");
         try (JavaWriter writer = new JavaWriter(filePath)) {
-            generateBaseStateClass(writer);
+            generateParentStateClass(writer);
         } catch (Exception e) {
 
         }
     }
 
-    private void generateBaseStateClass(JavaWriter writer) {
-        generateBaseStateHeader(writer);
-        generateBaseStateConstructor(writer);
-        generateDefaultTriggers(writer);
+    private void generateParentStateClass(JavaWriter writer) {
+        generateParentStateHeader(writer);
+        generateParentStateConstructor(writer);
+        generateBaseTriggers(writer);
         closeDefinition(writer);
     }
 
-    private void generateBaseStateHeader(JavaWriter writer) {
+    private void generateParentStateHeader(JavaWriter writer) {
         writer.writePackage(packageName);
         writer.writeEmptyLine();
         writer.writeClassHeader(stateClass, List.of("public", "abstract"), Optional.of("AbstractState"));
@@ -267,7 +267,7 @@ public class JavaGenerator extends Generator {
         writer.writeEmptyLine();
     }
 
-    private void generateBaseStateConstructor(JavaWriter writer) {
+    private void generateParentStateConstructor(JavaWriter writer) {
         writer.writeCode(format("""
                 protected %s(%s context, String _id, String _name) {
                     super(_id, _name);
@@ -277,16 +277,16 @@ public class JavaGenerator extends Generator {
         writer.writeEmptyLine();
     }
 
-    private void generateDefaultTriggers(JavaWriter writer) {
+    private void generateBaseTriggers(JavaWriter writer) {
         for (Trigger trigger : triggers) {
             writer.writeMethodHeader(trigger.name(), "void", List.of("protected"),
                     trigger.params());
-            writer.writeCode("Default();", 2);
+            writer.writeCode("Base();", 2);
             writer.writeClosingBracket(1);
         }
 
         writer.writeCode("""
-                protected void Default() {
+                protected void Base() {
                     throw new RuntimeException("Undefined transtion");
                 }
                 """, 1);
