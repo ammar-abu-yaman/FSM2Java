@@ -1,12 +1,15 @@
 {
-  "options": [{ "name": "string", "value": ["string"] }],
+  "options": { "[string]": "string" },
   "states": [
     {
       "name": "string",
       "transitions": [
         {
-          "name": "string",
-          "params": [{ "name": "string", "type": "string" }],
+          "trigger": {
+            "name": "string",
+            "params": [{ "name": "string", "type": "string" }]
+          },
+
           "guard": "string?",
           "nextState": "string?",
           "code": "string"

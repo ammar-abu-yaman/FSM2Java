@@ -1,16 +1,18 @@
 import { RootType } from "../store";
 
 export interface FsmJson {
-  options: { name: string; value: string[] }[];
+  options: any;
   states: {
     name: string;
     enterCode: string;
     exitCode: string;
     transitions: {
-      name: string;
-      params: { name: string; type: string }[];
+      trigger: {
+        name: string;
+        params: { name: string; type: string }[];
+      };
       guard?: string;
-      nextState?: string;
+      nextState: string;
       code: string;
     }[];
   }[];
@@ -18,12 +20,12 @@ export interface FsmJson {
 
 export function aggregateState(data: RootType): FsmJson {
   const { metaData } = data;
-  const options = [
-    { name: "class", value: [metaData.className] },
-    { name: "package", value: [metaData.package] },
-    { name: "initial-state", value: [metaData.initialState ?? ""] },
-    { name: "actions", value: metaData.actions },
-  ];
+  const options: any = {
+    class: [metaData.className],
+    package: [metaData.package],
+    "initial-state": [metaData.initialState ?? ""],
+    actions: metaData.actions,
+  };
 
   const states = data.states.map((state) => ({
     name: state.name,
@@ -32,8 +34,10 @@ export function aggregateState(data: RootType): FsmJson {
     transitions: data.transitions
       .filter((transition) => transition.source === state.id)
       .map((transition) => ({
-        name: transition.name,
-        params: transition.parameters,
+        trigger: {
+          name: transition.name,
+          params: transition.parameters,
+        },
         guard: transition.condition,
         nextState: data.states.find((state) => state.id === transition.target)
           ?.name,

@@ -61,7 +61,13 @@ export function DefaultOptionBarContent() {
           display={"block"}
           width={"80%"}
           value={metaData.initialState}
+          onChange={(e) =>
+            dispatch(updateMetaData({ initialState: e.target.value }))
+          }
         >
+          <option value={""} hidden>
+            Select State
+          </option>
           {states.map((state) => (
             <option value={state.name}>{state.name}</option>
           ))}

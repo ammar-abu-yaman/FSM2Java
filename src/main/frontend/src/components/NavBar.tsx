@@ -1,5 +1,7 @@
 import React from "react";
 import { Link, Box, Flex, Text, Button, Stack } from "@chakra-ui/react";
+import { aggregateState } from "../util/json";
+import { useAppSelector } from "../hooks";
 
 function NavBar(props: any) {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -76,6 +78,23 @@ function MenuItem({
 }
 
 function MenuLinks({ isOpen }: { isOpen: boolean }) {
+  const state = useAppSelector((data) => data);
+  const downloadSourceCode = async (e: any) => {
+    e.preventDefault();
+    const fsm = aggregateState(state);
+    const resp = await fetch("http://localhost:8080/generate", {
+      body: JSON.stringify(fsm),
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    });
+    console.log(resp);
+    const data = await resp.blob();
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.href = window.URL.createObjectURL(data);
+    downloadAnchor.download = state.metaData.className + ".zip";
+    downloadAnchor.click();
+  };
+
   return (
     <Box
       display={{ base: isOpen ? "block" : "none", md: "block" }}
@@ -90,7 +109,7 @@ function MenuLinks({ isOpen }: { isOpen: boolean }) {
       >
         <MenuItem to="/aboutus"> About Us </MenuItem>
         <MenuItem to="/export" isLast>
-          <Button size={"sm"} bg="blue.600">
+          <Button size={"sm"} bg="blue.600" onClick={downloadSourceCode}>
             Export
           </Button>
         </MenuItem>
