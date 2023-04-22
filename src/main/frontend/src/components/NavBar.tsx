@@ -82,7 +82,7 @@ function MenuLinks({ isOpen }: { isOpen: boolean }) {
   const downloadSourceCode = async (e: any) => {
     e.preventDefault();
     const fsm = aggregateState(state);
-    const resp = await fetch("http://localhost:8080/generate", {
+    const resp = await fetch("/generate", {
       body: JSON.stringify(fsm),
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=UTF-8" },
