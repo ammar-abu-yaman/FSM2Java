@@ -44,7 +44,7 @@ public class CompilerController {
         System.out.println("My file exists " + " " + jarFile.getAbsolutePath() + " " + jarFile.exists());
     }
 
-    @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = "application/zip")
+    @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = MediaType.TEXT_PLAIN_VALUE)
     @CrossOrigin(originPatterns = { "*/*" })
     @ResponseBody
     String generate(@RequestBody String body) throws Exception {
