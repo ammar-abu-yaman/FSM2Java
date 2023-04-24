@@ -40,6 +40,7 @@ public class CompilerController {
     public CompilerController() throws IOException {
         jarFile = File.createTempFile("temp-compiler", ".jar");
         Files.copy(getClass().getResourceAsStream("/compiler.jar"), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        System.out.println("My file exists " + " " + jarFile.getAbsolutePath() + " " + jarFile.exists());
     }
 
     @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = "application/zip")
