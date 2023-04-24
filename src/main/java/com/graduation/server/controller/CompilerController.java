@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -32,15 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CompilerController {
 
-    private static String compilerJarPath = null;
+    private File jarFile;
 
-    static {
-        try {
-            compilerJarPath = ResourceUtils.getFile("classpath:compiler.jar").toPath().toString();
-        } catch (FileNotFoundException e) {
-            // this exception should neveer occur as the file is guaranted to be on the
-            // class path
-        }
+
+    public CompilerController() throws IOException {
+        jarFile = File.createTempFile("temp-compiler", ".jar");
+        Files.copy(getClass().getResourceAsStream("/compiler.jar"), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = "application/zip")
@@ -52,7 +51,7 @@ public class CompilerController {
         Path compilerOutputPath = compileSpec(specPath, identifier);
         Path zippedOutputPath = zipOutput(compilerOutputPath, identifier);
         ResponseEntity<Resource> resp = getCompilerResponse(zippedOutputPath);
-        // cleanUpFiles(specPath, compilerOutputPath, zippedOutputPath);
+        cleanUpFiles(specPath, compilerOutputPath, zippedOutputPath);
         return resp;
     }
 
@@ -67,16 +66,11 @@ public class CompilerController {
     private Path compileSpec(Path specPath, String identifier) throws Exception {
         Path outputDirPath = Files.createDirectories(Paths.get(identifier));
         Process compilerProcess = new ProcessBuilder(
-                "java", "-jar", "\"" + compilerJarPath + "\"",
+                "java", "-jar", "\"" + jarFile.getAbsolutePath().toString() + "\"",
                 specPath.toAbsolutePath().toString(),
                 "-f", "json",
                 "-o", outputDirPath.toAbsolutePath().toString()).start();
-        var compilerStdout = new BufferedReader(new InputStreamReader(compilerProcess.getInputStream()));
-        String line;
-        while ((line = compilerStdout.readLine()) != null) {
-            System.out.println(line);
-        }
-        System.out.println("Return Code: " + compilerProcess.waitFor());
+        compilerProcess.waitFor();
         return outputDirPath;
     }
 
