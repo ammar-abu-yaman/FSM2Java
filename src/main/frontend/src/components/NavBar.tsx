@@ -87,7 +87,6 @@ function MenuLinks({ isOpen }: { isOpen: boolean }) {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=UTF-8" },
     });
-    console.log(resp);
     const data = await resp.blob();
     const downloadAnchor = document.createElement("a");
     downloadAnchor.href = window.URL.createObjectURL(data);
@@ -107,7 +106,6 @@ function MenuLinks({ isOpen }: { isOpen: boolean }) {
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
-        <MenuItem to="/aboutus"> About Us </MenuItem>
         <MenuItem to="/export" isLast>
           <Button size={"sm"} bg="blue.600" onClick={downloadSourceCode}>
             Export
