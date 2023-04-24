@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -46,14 +47,19 @@ public class CompilerController {
     @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = "application/zip")
     @CrossOrigin(originPatterns = { "*/*" })
     @ResponseBody
-    ResponseEntity<Resource> generate(@RequestBody String body) throws Exception {
+    String generate(@RequestBody String body) throws Exception {
+        String data = "";
         String identifier = UUID.randomUUID().toString();
+        data += identifier;
         Path specPath = writeSpecFile(identifier, body);
+        data += " " + specPath + " ";
         Path compilerOutputPath = compileSpec(specPath, identifier);
-        Path zippedOutputPath = zipOutput(compilerOutputPath, identifier);
-        ResponseEntity<Resource> resp = getCompilerResponse(zippedOutputPath);
-        cleanUpFiles(specPath, compilerOutputPath, zippedOutputPath);
-        return resp;
+        data += Arrays.stream(compilerOutputPath.toFile().listFiles()).map(file -> file.getAbsolutePath().toString()).collect(Collectors.toList()).toString();
+        return data;
+//        Path zippedOutputPath = zipOutput(compilerOutputPath, identifier);
+//        ResponseEntity<Resource> resp = getCompilerResponse(zippedOutputPath);
+//        cleanUpFiles(specPath, compilerOutputPath, zippedOutputPath);
+//        return resp;
     }
 
     private Path writeSpecFile(String identifier, String body) throws IOException {
