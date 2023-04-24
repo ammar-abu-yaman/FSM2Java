@@ -15,7 +15,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -41,25 +40,20 @@ public class CompilerController {
     public CompilerController() throws IOException {
         jarFile = File.createTempFile("temp-compiler", ".jar");
         Files.copy(getClass().getResourceAsStream("/compiler.jar"), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        System.out.println("My file exists " + " " + jarFile.getAbsolutePath() + " " + jarFile.exists());
+
     }
 
-    @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = MediaType.TEXT_PLAIN_VALUE)
+    @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = "application/zip")
     @CrossOrigin(originPatterns = { "*/*" })
     @ResponseBody
-    String generate(@RequestBody String body) throws Exception {
-        String data = "";
+    ResponseEntity<Resource> generate(@RequestBody String body) throws Exception {
         String identifier = UUID.randomUUID().toString();
-        data += identifier;
         Path specPath = writeSpecFile(identifier, body);
-        data += " " + specPath + " ";
         Path compilerOutputPath = compileSpec(specPath, identifier);
-        data += Arrays.stream(compilerOutputPath.toFile().listFiles()).map(file -> file.getAbsolutePath().toString()).collect(Collectors.toList()).toString();
-        return data;
-//        Path zippedOutputPath = zipOutput(compilerOutputPath, identifier);
-//        ResponseEntity<Resource> resp = getCompilerResponse(zippedOutputPath);
-//        cleanUpFiles(specPath, compilerOutputPath, zippedOutputPath);
-//        return resp;
+        Path zippedOutputPath = zipOutput(compilerOutputPath, identifier);
+        ResponseEntity<Resource> resp = getCompilerResponse(zippedOutputPath);
+        cleanUpFiles(specPath, compilerOutputPath, zippedOutputPath);
+        return resp;
     }
 
     private Path writeSpecFile(String identifier, String body) throws IOException {
