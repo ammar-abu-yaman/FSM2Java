@@ -1,13 +1,7 @@
 package com.graduation.server.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,12 +13,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,13 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CompilerController {
 
-    private File jarFile;
+    final private File jarFile, runtimeFile;
 
 
     public CompilerController() throws IOException {
         jarFile = File.createTempFile("temp-compiler", ".jar");
-        Files.copy(getClass().getResourceAsStream("/compiler.jar"), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
+        runtimeFile = File.createTempFile("temp-runtime", ".jar");
+        Files.copy(getClass().getResourceAsStream("/compiler-jar-with-dependencies.jar"), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(getClass().getResourceAsStream("/Fsm4JRuntime-1.0.jar"), runtimeFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     @PostMapping(value = "/generate", consumes = { MediaType.TEXT_PLAIN_VALUE }, produces = "application/zip")
@@ -50,11 +43,14 @@ public class CompilerController {
         String identifier = UUID.randomUUID().toString();
         Path specPath = writeSpecFile(identifier, body);
         Path compilerOutputPath = compileSpec(specPath, identifier);
+        copyRuntimeFile(compilerOutputPath);
         Path zippedOutputPath = zipOutput(compilerOutputPath, identifier);
         ResponseEntity<Resource> resp = getCompilerResponse(zippedOutputPath);
         cleanUpFiles(specPath, compilerOutputPath, zippedOutputPath);
         return resp;
     }
+
+
 
     private Path writeSpecFile(String identifier, String body) throws IOException {
 
@@ -67,12 +63,17 @@ public class CompilerController {
     private Path compileSpec(Path specPath, String identifier) throws Exception {
         Path outputDirPath = Files.createDirectories(Paths.get(identifier));
         Process compilerProcess = new ProcessBuilder(
-                "java", "-jar", "\"" + jarFile.getAbsolutePath().toString() + "\"",
+                "java", "-jar", "\"" + jarFile.getAbsolutePath() + "\"",
                 specPath.toAbsolutePath().toString(),
                 "-f", "json",
                 "-o", outputDirPath.toAbsolutePath().toString()).start();
+
         compilerProcess.waitFor();
         return outputDirPath;
+    }
+
+    private void copyRuntimeFile(Path compilerOutputPath) throws IOException {
+        Files.copy(runtimeFile.toPath(), compilerOutputPath.resolve("Fsm4JRuntime.jar"));
     }
 
     private Path zipOutput(Path compilerOutputPath, String identifier) throws IOException {
@@ -81,7 +82,7 @@ public class CompilerController {
         try (ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(zipPath.toFile()))) {
             Arrays
                     .stream(compilerOutputPath.toFile().listFiles())
-                    .filter(file -> file.isFile() && file.getName().endsWith(".java"))
+                    .filter(File::isFile)
                     .forEach(file -> zipFile(zipStream, buffer, file));
         }
         return zipPath;
@@ -96,6 +97,7 @@ public class CompilerController {
                 zipStream.write(buffer, 0, length);
             zipStream.closeEntry();
         } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

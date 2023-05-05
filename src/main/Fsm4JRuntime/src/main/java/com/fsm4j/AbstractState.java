@@ -1,4 +1,4 @@
-package com.graduation.lib;
+package com.fsm4j;
 
 import java.io.Serializable;
 

@@ -81,6 +81,9 @@ public class JavaGenerator extends Generator {
 
     private void generateContextClassHeader(JavaWriter writer) {
         writer.writePackage(packageName);
+        writer.writeEmptyLine();
+        writer.writeImport("com.fsm4j.AbstractFsmContext");
+        writer.writeEmptyLine();
         writer.writeClassHeader(contextClass, List.of("public"), Optional.of("AbstractFsmContext"));
         writer.writeCode(format("""
                 public %s(%s owner) {
@@ -258,6 +261,8 @@ public class JavaGenerator extends Generator {
 
     private void generateParentStateHeader(JavaWriter writer) {
         writer.writePackage(packageName);
+        writer.writeEmptyLine();
+        writer.writeImport("com.fsm4j.AbstractState");
         writer.writeEmptyLine();
         writer.writeClassHeader(stateClass, List.of("public", "abstract"), Optional.of("AbstractState"));
         writer.writeEmptyLine();
