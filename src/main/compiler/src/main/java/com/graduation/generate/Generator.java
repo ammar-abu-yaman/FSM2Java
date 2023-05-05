@@ -11,6 +11,11 @@ import com.graduation.fsm.Fsm;
 import com.graduation.fsm.Item.Option;
 import com.graduation.fsm.Item.State;
 
+// Command Pattern make it extendible 
+// JavaGenerator
+// PythonGenerator
+// JavaScriptGenerator
+// CppGenerator
 public abstract class Generator {
     protected Fsm fsm;
     protected Path outputPath;

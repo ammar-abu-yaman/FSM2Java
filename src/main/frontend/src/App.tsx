@@ -5,7 +5,10 @@ import Layout from "./components/Layout";
 import { Canvas } from "./components/Canvas";
 import { OptionBar } from "./option/OptionBar";
 import { CodeEditor } from "./components/CodeEditor";
-
+//Typescript React
+// Redux : State Management
+// JointJs // diagrams
+// Chakra // UI elements
 function App() {
   return (
     <Layout>
