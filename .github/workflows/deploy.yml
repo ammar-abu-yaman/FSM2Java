@@ -7,7 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/checkout@v3
-      - uses: docker/setup-buildx-action@v2
       - uses: yuzhiyongcn/setup-maven@v1.0.0
       - uses: actions/setup-java@v1.4.4
         with: 
@@ -16,16 +15,10 @@ jobs:
       - run: mvn clean install
         env:
           CI: ""
-      - run: ls target
-      - uses: docker/login-action@v2.1.0
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: docker/build-push-action@v4.0.0
-        with:
-          push: true
-          tags: ammarabuyaman/fsm4j:latest
-
+      run: |
+        docker build -t ammarabuyaman/fsm4j .
+        docker login -u ammarabuyaman -p ${{ secrets.DOCKERHUB_TOKEN }}
+        docker push ammarabuyaman/fsm4j
       
           
       
