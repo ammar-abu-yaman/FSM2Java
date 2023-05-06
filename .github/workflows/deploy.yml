@@ -14,6 +14,7 @@ jobs:
           destribution: 'oracle'
           java-version: '19'
       - run: mvn clean install
+      - run: ls target
         env:
           CI: ""
       - uses: docker/login-action@v2.1.0
