@@ -72,6 +72,7 @@ public class CompilerController {
         return outputDirPath;
     }
 
+
     private void copyRuntimeFile(Path compilerOutputPath) throws IOException {
         Files.copy(runtimeFile.toPath(), compilerOutputPath.resolve("Fsm4JRuntime.jar"));
     }
