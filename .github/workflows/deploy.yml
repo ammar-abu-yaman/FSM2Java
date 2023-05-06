@@ -17,7 +17,7 @@ jobs:
           CI: ""
       - run: |
           docker build -t ammarabuyaman/fsm4j .
-          docker login -u ammarabuyaman -p ${{ DOCKERHUB_TOKEN }}
+          docker login -u ammarabuyaman -p ${{ secrets.DOCKERHUB_TOKEN }}
           docker push ammarabuyaman/fsm4j
       
           
