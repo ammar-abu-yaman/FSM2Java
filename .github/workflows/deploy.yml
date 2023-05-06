@@ -14,6 +14,8 @@ jobs:
           destribution: 'oracle'
           java-version: '19'
       - run: mvn clean install
+        env:
+          CI: ""
       - uses: docker/login-action@v2.1.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
