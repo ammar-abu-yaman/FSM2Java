@@ -7,6 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.16.0'
       - uses: docker/setup-buildx-action@v2
       - uses: yuzhiyongcn/setup-maven@v1.0.0
       - uses: actions/setup-java@v1.4.4

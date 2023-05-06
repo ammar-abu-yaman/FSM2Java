@@ -52,18 +52,6 @@
 				<version>1.12.1</version>
 
 				<executions>
-					<!-- installing node and npm -->
-					<execution>
-						<id>Install node and npm</id>
-						<goals>
-							<goal>install-node-and-npm</goal>
-						</goals>
-						<phase>generate-resources</phase>
-						<configuration>
-							<nodeVersion>v16.15.0</nodeVersion>
-							<npmVersion>8.5.5</npmVersion>
-						</configuration>
-					</execution>
 
 					<!-- running npm install -->
 					<execution>
