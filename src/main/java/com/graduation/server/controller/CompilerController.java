@@ -63,7 +63,7 @@ public class CompilerController {
     private Path compileSpec(Path specPath, String identifier) throws Exception {
         Path outputDirPath = Files.createDirectories(Paths.get(identifier));
         Process compilerProcess = new ProcessBuilder(
-                "java", "-jar", "\"" + jarFile.getAbsolutePath() + "\"",
+                "java", "-jar", jarFile.getAbsolutePath().toString(),
                 specPath.toAbsolutePath().toString(),
                 "-f", "json",
                 "-o", outputDirPath.toAbsolutePath().toString()).start();
