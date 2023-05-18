@@ -61,7 +61,17 @@ public class JavaGenerator extends Generator {
     private void generateContextClass(JavaWriter writer) {
         generateContextClassHeader(writer);
         generateContextClassTriggers(writer);
+        generateContextClassOwnerGetter(writer);
         closeDefinition(writer);
+    }
+
+    private void generateContextClassOwnerGetter(JavaWriter writer) {
+        writer.writeEmptyLine();
+        writer.writeCode(format("""
+                public %s getOwner() {
+                    return this.owner;
+                }
+                """, ownerClass),1);
     }
 
     private void generateContextClassTriggers(JavaWriter writer) {
@@ -85,6 +95,10 @@ public class JavaGenerator extends Generator {
         writer.writeImport("com.fsm4j.AbstractFsmContext");
         writer.writeEmptyLine();
         writer.writeClassHeader(contextClass, List.of("public"), Optional.of("AbstractFsmContext"));
+
+        writer.writeCode("protected " + ownerClass + " owner;", 1);
+        writer.writeEmptyLine();
+
         writer.writeCode(format("""
                 public %s(%s owner) {
                     this.owner = owner;
