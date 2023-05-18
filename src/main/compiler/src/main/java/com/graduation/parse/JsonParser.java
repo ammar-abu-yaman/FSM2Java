@@ -37,24 +37,21 @@ public class JsonParser implements FsmParser {
         List<State> states = getStates(statesNode);
 
         Map<String, Option> options = getOptions(optionsNode);
-
         return new Fsm(options, states);
     }
 
     private Map<String, Option> getOptions(JsonNode optionsNode) {
         return StreamSupport
                 .stream(Spliterators.spliteratorUnknownSize(optionsNode.fields(), Spliterator.ORDERED), false)
-                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> new Option(entry.getKey(),
-                        mapper.convertValue(entry.getValue(), new TypeReference<List<String>>() {
-                        }))));
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new Option(entry.getKey(),
+                        mapper.convertValue(entry.getValue(), new TypeReference<List<String>>() {}
+                        ))));
     }
 
     private List<State> getStates(JsonNode statesNode) throws JsonMappingException, JsonProcessingException {
-        List<State> states = mapper.readValue(statesNode.toString(), new TypeReference<List<State>>() {
-        });
+        List<State> states = mapper.readValue(statesNode.toString(), new TypeReference<List<State>>() {});
         for (State state : states) {
-            for (int i = 0; i < state.transitions().size(); i++)
-                state.transitions().set(i, mapper.convertValue(state.transitions().get(0), Transition.class));
+            state.transitions().replaceAll(transition -> mapper.convertValue(transition, Transition.class));
         }
         return states;
     }

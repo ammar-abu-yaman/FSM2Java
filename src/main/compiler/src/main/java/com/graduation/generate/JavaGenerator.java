@@ -75,7 +75,7 @@ public class JavaGenerator extends Generator {
         writer.writeCode(format("""
                 getState().%s(%s);
                 """, trigger.name(),
-                paramsToArgumnets(trigger.params())), 2);
+                paramsToArguments(trigger.params())), 2);
         writer.writeCode("}", 1);
     }
 
@@ -211,10 +211,10 @@ public class JavaGenerator extends Generator {
     }
 
     private void generateSuperDelegatedTransition(JavaWriter writer, Trigger trigger) {
-        writer.writeCode(format("super.%s(%s);", trigger.name(), paramsToArgumnets(trigger.params())), 2);
+        writer.writeCode(format("super.%s(%s);", trigger.name(), paramsToArguments(trigger.params())), 2);
     }
 
-    private String paramsToArgumnets(List<Param> params) {
+    private String paramsToArguments(List<Param> params) {
         return params
                 .stream()
                 .map(param -> param.name())

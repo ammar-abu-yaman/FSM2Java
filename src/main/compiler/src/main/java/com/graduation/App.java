@@ -44,11 +44,10 @@ public class App {
 	}
 
 	private static JavaGenerator getGenerator(Path outputPath, Fsm fsm, String language) {
-		switch (language) {
-			case "java":
-				return new JavaGenerator(fsm, outputPath);
-		}
-		return null;
+		return switch (language) {
+			case "java" -> new JavaGenerator(fsm, outputPath);
+			default -> null;
+		};
 	}
 
 	private static Path createOutputDir(String path) throws IOException {
@@ -58,13 +57,11 @@ public class App {
 	}
 
 	private static FsmParser getParser(String format) {
-		switch (format) {
-			case "fsmj":
-				return new FsmJParser();
-			case "json":
-				return new JsonParser();
-		}
-		return null;
+		return switch (format) {
+			case "json" -> new JsonParser();
+			case "fsmj" -> new FsmJParser();
+			default -> null;
+		};
 	}
 
 	private static Path getSpecPath(String spec) throws FileNotFoundException {

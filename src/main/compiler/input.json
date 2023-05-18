@@ -1,0 +1,141 @@
+{
+  "options": {
+    "class": [
+      "Bio"
+    ],
+    "package": [
+      "com.Bio"
+    ],
+    "initial-state": [
+      "Start"
+    ],
+    "actions": [
+      "found"
+    ]
+  },
+  "states": [
+    {
+      "name": "TAGState",
+      "enterCode": "",
+      "exitCode": "",
+      "transitions": [
+        {
+          "trigger": {
+            "name": "match",
+            "params": [
+              {
+                "name": "n",
+                "type": "char"
+              }
+            ]
+          },
+          "guard": "n=='C'",
+          "nextState": "Start",
+          "code": "found()"
+        },
+        {
+          "trigger": {
+            "name": "match",
+            "params": [
+              {
+                "name": "n",
+                "type": "char"
+              }
+            ]
+          },
+          "nextState": "Start",
+          "code": ""
+        }
+      ]
+    },
+    {
+      "name": "TState",
+      "enterCode": "",
+      "exitCode": "",
+      "transitions": [
+        {
+          "trigger": {
+            "name": "match",
+            "params": [
+              {
+                "name": "n",
+                "type": "char"
+              }
+            ]
+          },
+          "guard": "n=='A'",
+          "nextState": "TAState",
+          "code": ""
+        },
+        {
+          "trigger": {
+            "name": "match",
+            "params": [
+              {
+                "name": "n",
+                "type": "char"
+              }
+            ]
+          },
+          "nextState": "Start",
+          "code": ""
+        }
+      ]
+    },
+    {
+      "name": "Start",
+      "enterCode": "",
+      "exitCode": "",
+      "transitions": [
+        {
+          "trigger": {
+            "name": "match",
+            "params": [
+              {
+                "name": "n",
+                "type": "char"
+              }
+            ]
+          },
+          "guard": "n=='T'",
+          "nextState": "TState",
+          "code": ""
+        }
+      ]
+    },
+    {
+      "name": "TAState",
+      "enterCode": "",
+      "exitCode": "",
+      "transitions": [
+        {
+          "trigger": {
+            "name": "match",
+            "params": [
+              {
+                "name": "n",
+                "type": "char"
+              }
+            ]
+          },
+          "guard": "n=='A'",
+          "nextState": "TAGState",
+          "code": ""
+        },
+        {
+          "trigger": {
+            "name": "match",
+            "params": [
+              {
+                "name": "n",
+                "type": "char"
+              }
+            ]
+          },
+          "nextState": "Start",
+          "code": ""
+        }
+      ]
+    }
+  ]
+}
