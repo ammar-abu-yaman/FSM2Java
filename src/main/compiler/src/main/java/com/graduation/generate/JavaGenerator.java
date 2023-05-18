@@ -47,6 +47,47 @@ public class JavaGenerator extends Generator {
         generateParentStateClass();
         generateBaseStateClass();
         generateStateClasses();
+        generateOwnerClass();
+    }
+
+    private void generateOwnerClass() {
+        Path filePath = outputPath.resolve(ownerClass + ".java");
+        try (JavaWriter writer = new JavaWriter(filePath)) {
+            generateOwnerClass(writer);
+        } catch (Exception e) {
+        }
+    }
+
+    private void generateOwnerClass(JavaWriter writer) {
+        generateOwnerClassHeader(writer);
+        generateOwnerClassActionMethods(writer);
+        closeDefinition(writer);
+    }
+
+    private void generateOwnerClassHeader(JavaWriter writer) {
+        writer.writePackage(packageName);
+        writer.writeEmptyLine();
+
+        writer.writeClassHeader(ownerClass, List.of("public"), Optional.empty(), List.of(actionsInterface));
+        writer.writeEmptyLine();
+
+        writer.writeCode("private " + contextClass + " context;", 1);
+        writer.writeEmptyLine();
+
+        writer.writeCode(format("""
+                public %s() {
+                    this.context = new %s(this);
+                }
+                """, ownerClass, contextClass),1);
+        writer.writeEmptyLine();
+    }
+
+    private void generateOwnerClassActionMethods(JavaWriter writer) {
+        for(String action: actions) {
+            writer.writeMethodHeader(action, "void", List.of("public"), List.of());
+            writer.writeCode(format("throw new UnsupportedOperationException(\"Action %s is not implemented\");", action), 2);
+            writer.writeClosingBracket(1);
+        }
     }
 
     private void generateContextClass() {
