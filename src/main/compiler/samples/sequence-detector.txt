@@ -1,0 +1,47 @@
+$package com.example
+
+$class SequenceDetector
+
+$initial-state S0
+
+$actions 
+    match 
+    mismatch
+
+${{
+    S0 {        
+        readBit(b:int) [#b == 0#] => S0 {#
+            ctx.mismatch();
+        #},
+        readBit(b:int) [#b == 1#] => S1 {#
+            ctx.mismatch();
+        #}
+    },
+
+    S1 {
+        readBit(b:int) [#b == 0#] => S2 {#
+            ctx.mismatch();
+        #},
+        readBit(b:int) [#b == 1#] => S1 {#
+            ctx.mismatch();
+        #}
+    },
+    
+    S2 {
+        readBit(b:int) [#b == 0#] => S0 {#
+            ctx.mismatch();
+        #},
+        readBit(b:int) [#b == 1#] => S3 {#
+            ctx.mismatch();
+        #}
+    },
+    
+    S3 {
+        readBit(b:int) [#b == 0#] => S0 {#
+            ctx.match();
+        #},
+        readBit(b:int) [#b == 1#] => S1 {#
+            ctx.mismatch();
+        #}
+    }
+}}$

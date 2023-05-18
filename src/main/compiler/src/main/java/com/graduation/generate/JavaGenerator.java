@@ -145,7 +145,7 @@ public class JavaGenerator extends Generator {
 
         writer.writeCode(format("""
                 public %s(%s context) {
-                    super(context, %d, "%s");
+                    super(context, "%d", "%s");
                 }
                 """, className, contextClass, stateId, className), 1);
         writer.writeEmptyLine();
