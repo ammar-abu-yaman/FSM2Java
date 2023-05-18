@@ -54,7 +54,7 @@ public class JsonParser implements FsmParser {
         });
         for (State state : states) {
             for (int i = 0; i < state.transitions().size(); i++)
-                state.transitions().set(i, mapper.convertValue(state.transitions().get(0), Transition.class));
+                state.transitions().set(i, mapper.convertValue(state.transitions().get(i), Transition.class));
         }
         return states;
     }

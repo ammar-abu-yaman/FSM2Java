@@ -52,7 +52,7 @@ public class App {
 	}
 
 	private static Path createOutputDir(String path) throws IOException {
-		if (path == null)
+		if (path == null || "".equals(path))
 			path = "output";
 		return Files.createDirectories(Paths.get(path));
 	}

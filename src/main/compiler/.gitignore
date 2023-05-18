@@ -1,4 +1,4 @@
 *.antlr
 .vscode
-outputs
+output
 target
