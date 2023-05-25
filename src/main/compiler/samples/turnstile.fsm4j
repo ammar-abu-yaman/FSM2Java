@@ -1,0 +1,18 @@
+$package com.turnstile
+$class Turnstile
+$initial-state Locked
+$actions lock unlock alarm thankyou
+
+${{
+
+Locked {
+    coin => Unlocked {# ctx.unlock(); #},
+    pass => null {# ctx.alarm(); #}
+},
+
+Unlocked {
+    pass => Locked  {# ctx.lock(); #},
+    coin => nil {# ctx.thankyou(); #}
+}
+
+}}$

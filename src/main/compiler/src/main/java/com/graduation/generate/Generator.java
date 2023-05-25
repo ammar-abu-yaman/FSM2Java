@@ -1,5 +1,6 @@
 package com.graduation.generate;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;

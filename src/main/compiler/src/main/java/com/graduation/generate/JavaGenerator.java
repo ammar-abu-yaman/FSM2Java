@@ -124,9 +124,9 @@ public class JavaGenerator extends Generator {
     private void writeContextClassTriggerBody(JavaWriter writer, Trigger trigger) {
         writer.writeMethodHeader(trigger.name(), "void", List.of("public"), trigger.params());
         writer.writeCode(format("""
-                getState().%s(%s);
-                """, trigger.name(),
-                paramsToArguments(trigger.params())), 2);
+                ((%s) getState()).%s(%s);
+                """, stateClass ,trigger.name(), paramsToArguments(trigger.params())),
+                2);
         writer.writeCode("}", 1);
     }
 
@@ -150,7 +150,7 @@ public class JavaGenerator extends Generator {
 
     private void generateBaseStateClass() {
         State defaultState = getStateByName("Base").orElseGet(() -> new State("Base", List.of()));
-        generateState(defaultState, 0);
+        generateBaseState(defaultState, 0);
     }
 
     private void generateStateClasses() {
@@ -178,14 +178,40 @@ public class JavaGenerator extends Generator {
         closeDefinition(writer);
     }
 
+    private void generateBaseState(State state, int stateId) {
+        Path filePath = outputPath.resolve(state.name() + ".java");
+        try (JavaWriter writer = new JavaWriter(filePath)) {
+            generateBaseState(state, stateId, writer);
+        } catch (Exception e) {
+        }
+    }
+
+    private void generateBaseState(State state, int stateId, JavaWriter writer) {
+        generateBaseStateHeader(writer, state, stateId);
+        generateStateEnterMethod(writer, state);
+        generateStateExitMethod(writer, state);
+        generateStateTriggers(writer, state);
+        closeDefinition(writer);
+    }
+
+    private void generateBaseStateHeader(JavaWriter writer, State state, int stateId) {
+        generateStateHeader(writer, state, stateId);
+        writer.writeCode(format("""
+                public Base(%s context, String _id, String _name) {
+                	super(context, _id, _name);
+                }
+                """, contextClass), 1);
+        writer.writeEmptyLine();
+    }
+
     private void generateStateExitMethod(JavaWriter writer, State state) {
-        writer.writeMethodHeader("__enter__", "void", List.of("protected"), List.of());
+        writer.writeMethodHeader("__enter__", "void", List.of("public"), List.of());
         writer.writeCode(state.enterCode(), 2);
         writer.writeCode("}", 1);
     }
 
     private void generateStateEnterMethod(JavaWriter writer, State state) {
-        writer.writeMethodHeader("__exit__", "void", List.of("protected"), List.of());
+        writer.writeMethodHeader("__exit__", "void", List.of("public"), List.of());
         writer.writeCode(state.exitCode(), 2);
         writer.writeCode("}", 1);
     }
@@ -252,7 +278,7 @@ public class JavaGenerator extends Generator {
         writer.writeCode(transition.code(), 4);
         writer.writeCode(format("""
                 } finally {
-                    context.setState(new %s(this));
+                    context.setState(new %s(context));
                     %s
                 }
                 """, isValidNextState(transition) ? transition.nextState() : stateName,
