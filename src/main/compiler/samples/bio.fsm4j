@@ -1,0 +1,26 @@
+$package com.bioinformatics
+$class SequenceAnalyzer
+$initial-state Start
+$actions found
+
+${{
+    Start {
+        match(nucleotide: char) [# nucleotide == 'T' #] => TState {##},
+        match(nucleotide: char) => null {##}
+    },
+
+    TState {
+        match(nucleotide: char) [# nucleotide == 'A' #] => TAState {##},
+        match(nucleotide: char) => Start {##}
+    },
+
+    TAState {
+        match(nucleotide: char) [# nucleotide == 'G' #] => TAGState {##},
+        match(nucleotide: char) => Start {##}
+    },
+
+    TAGState {
+        match(nucleotide: char) [# nucleotide == 'C' #] => TAGState {# ctx.found(); #},
+        match(nucleotide: char) => Start {##}
+    }
+}}$

@@ -20,11 +20,11 @@ public abstract class AbstractState implements Serializable {
         return _name;
     }
 
-    protected void __enter__() {
+    public void __enter__() {
 
     }
 
-    protected void __exit__() {
+    public void __exit__() {
 
     }
 
