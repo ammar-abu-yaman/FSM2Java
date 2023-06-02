@@ -100,7 +100,7 @@ public class StandaloneCompilerVisitor extends compilerBaseVisitor<Item> {
     public Item visitTrigger(TriggerContext ctx) {
         super.visitTrigger(ctx);
         String name = ctx.name.getText();
-        return new Trigger(name, params != null ? params : List.of());
+        return new Trigger(name, params != null && ctx.param_list() != null ? params : List.of());
     }
 
     @Override

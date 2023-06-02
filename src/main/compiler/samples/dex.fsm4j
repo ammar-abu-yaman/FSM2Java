@@ -1,0 +1,36 @@
+$package com.sample
+
+$class Syntax
+
+$initial-state StartState
+
+$actions action1 action2
+
+${{
+
+StartState {
+
+__enter__ {#
+
+#}
+
+__exit__ {#
+
+
+#}
+
+
+normalTransition(param:Type) [#param.condition()#] => NextState {#
+
+    ctx.action1(); // executes action1 in transition code
+
+#},
+
+innerLoopbackTransition => null {##}
+
+
+},
+
+NextState {}
+
+}}$
