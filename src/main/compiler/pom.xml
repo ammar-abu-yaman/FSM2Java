@@ -133,7 +133,8 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <version>3.5.0</version>
         <configuration>
-          <finalName>compiler</finalName>
+          <finalName>fsm4j</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>

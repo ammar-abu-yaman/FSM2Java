@@ -32,7 +32,7 @@ public class CompilerController {
     public CompilerController() throws IOException {
         jarFile = File.createTempFile("temp-compiler", ".jar");
         runtimeFile = File.createTempFile("temp-runtime", ".jar");
-        Files.copy(getClass().getResourceAsStream("/compiler-jar-with-dependencies.jar"), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(getClass().getResourceAsStream("/fsm4j.jar"), jarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         Files.copy(getClass().getResourceAsStream("/Fsm4JRuntime-1.0.jar"), runtimeFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 

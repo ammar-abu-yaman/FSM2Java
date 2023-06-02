@@ -177,7 +177,7 @@
 								<resource>
 									<directory>${project.basedir}/src/main/compiler/target</directory>
 									<includes>
-										<include>compiler-jar-with-dependencies.jar</include>
+										<include>fsm4j.jar</include>
 									</includes>
 								</resource>
 							</resources>
@@ -203,6 +203,11 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.1</version>
 			</plugin>
 
 
