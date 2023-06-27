@@ -107,7 +107,7 @@ You can also define a Base state that acts as a failsafe mechanism that contains
 
 ## Example 
 Putting all of this together we will build a basic classical Turnstile finite-state machine using the tool 
---some image here
+TODO: put turnstile image here
 
 The spec file for the turnstile
 ```javascript
@@ -124,10 +124,49 @@ ${{
     
     Unlocked {
         pass => Locked  {# ctx.lock(); #},
-        coin => nil {# ctx.thankyou(); #}
+        coin => null {# ctx.thankyou(); #}
     }
 }}$
 ```
 We save this in a file called turnstile.fsm4j
-Next, we compile the file to generate code using 
+Next, we compile the file to generate the code using the compiler module
+Run ```java -jar compiler.jar turnstile.fsm4j ```
+This generates the following files, notice that each state has it's own class
+TODO: put generated files image here
+Next, we modify the Turnstile class to implement our logic, the Turnstile class by default implements the TurnstileActions interface to ensure we implement the required functionality.
+```java
+package com.turnstile;
+
+public class Turnstile implements TurnstileActions {
+	
+	private TurnstileContext context;
+	
+	public Turnstile() { this.context = new TurnstileContext(this); }
+	
+	public void coin() { context.coin(); }
+	
+	public void pass() { context.pass(); }
+	
+	@Override
+	public void lock() {
+		System.out.println("The gate is locked");
+	}
+
+	@Override
+	public void unlock() {
+		System.out.println("The gate is unlocked, you may pass");
+	}
+
+	@Override
+	public void alarm() {
+		System.out.println("Alarm! entered without paying");
+	}
+
+	@Override
+	public void thankyou() {
+		System.out.println("Thanks for the extra coin");
+	}
+	
+}
+```
 
