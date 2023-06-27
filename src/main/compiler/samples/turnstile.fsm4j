@@ -12,7 +12,7 @@ Locked {
 
 Unlocked {
     pass => Locked  {# ctx.lock(); #},
-    coin => nil {# ctx.thankyou(); #}
+    coin => null {# ctx.thankyou(); #}
 }
 
 }}$

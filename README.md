@@ -75,7 +75,7 @@ the section starts with ```${{``` and ends with ```}}$```
 
 States are generally defined as follow
 
-```
+```java
 state-name { 
 
     [__enter__ {# .. #}]
@@ -95,7 +95,7 @@ starting with the state name then optionally defining enter code and exit code t
 
 Transitions are generally defined as follow
 
-```
+```java
 transition-name [[# guard-condition #]] => next-state {# .. #}
 ```
 
