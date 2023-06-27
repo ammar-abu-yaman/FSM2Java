@@ -1,10 +1,10 @@
 # FSM4J
 
 ## FSM4J is a tool that can generate working code from finite state machine specifications
-## The tool provide to modes to provide FSM specifications
+## The tool provides two methods to provide FSM specifications
 
-* ## Textual mode using a custom language
-* ## Graphical web application to provide the specification visually
+* Textual mode using a custom language
+* Graphical web application to provide the specification visually
 
 # How to run
 
@@ -14,7 +14,7 @@ Running the project locally requires
 
 ### Running the compiler only
 
-To run the compiler commandline tool
+To run the compiler command line tool
 
 * Clone the project into a folder on your local machine using ```git clone https://github.com/ammar-abu-yaman/FSM2Java.git```
 
@@ -22,11 +22,11 @@ To run the compiler commandline tool
 
 * The compiler can be found in src/main/compiler/target/compiler-jar-with-dependencies.jar 
 
-The resulting Jar file contains all the neccessary dependencies to run the project compiler 
+The resulting Jar file contains all the necessary dependencies to run the project compiler 
 
 ### Running the application
 
-The application contains the web UI and a server that run the compiler on your behalf.
+The application contains the web UI and a server that runs the compiler on your behalf.
 To compile and run the application follow these steps
 
 * Clone the project into a folder on your local machine using ```git clone https://github.com/ammar-abu-yaman/FSM2Java.git```
@@ -37,7 +37,7 @@ To compile and run the application follow these steps
 
 Now you have two choices to run the application. You run it directly on your local machine using ``` java -jar target/server-0.0.1-SNAPSHOT.jar ``` and the web application will boot up on ```localhost:8080 ```
 
-You can also run it using docker after building an image from the compiled project using the provided Dockerfile.
+You can also run it using Docker after building an image from the compiled project using the provided Dockerfile.
 
 # User Manual
 
@@ -45,11 +45,11 @@ There are two ways to use the project, one is to use the compiler directly after
 
 ## Fsm4j language spec
 
-### Meta data
+### Metadata
 
-Meta data provides information to the compiler about about your application specifics to be used in code generation.
+Metadata provides information to the compiler about your application specifics to be used in code generation.
 
-The syntax for a meta data directive is as follow
+The syntax for a metadata directive is as follows
 
 ``` $property-name property-value [property-value]* ```
 
@@ -65,7 +65,7 @@ actions: multivalue property that is used to specify the actions that should be 
 
 ### States specification
 
-The state specficiation comes after the the meta data section. This section descripes the states, state transitions, action code and guards that composes the finite state machine
+The state specification comes after the metadata section. This section describes the states, state transitions, action code, and guards that composes the finite state machine
 
 
 the section starts with ```${{``` and ends with ```}}$```
@@ -73,7 +73,7 @@ the section starts with ```${{``` and ends with ```}}$```
 
 ### State specification syntax
 
-States are generally defined as follow
+States are generally defined as follows
 
 ```
 state-name { 
@@ -88,12 +88,12 @@ state-name {
 }
 ```
 
-starting with the state name then optionally defining enter code and exit code that will be executed every time that state is entered or exited respectivly, followed by the state's transitions' defenitions.
+starting with the state name then optionally defining enter code and exit code that will be executed every time that state is entered or exited respectively, followed by the state's transitions' definitions.
 
 
 ### Transition specification syntax
 
-Transitions are generally defined as follow
+Transitions are generally defined as follows
 
 ```
 transition-name [[# guard-condition #]] => next-state {# .. #}
@@ -103,4 +103,31 @@ starting with the transition name followed by an optional guard condition then t
 
 ### Base State
 
-You can also define a Base state that act as a failsafe mechanism that contains default implementation of the FSM transitions, it can be defined as any other State but the name of the state must be ```Base```.
+You can also define a Base state that acts as a failsafe mechanism that contains the default implementation of the FSM transitions, it can be defined as any other State but the name of the state must be ```Base```.
+
+## Example 
+Putting all of this together we will build a basic classical Turnstile finite-state machine using the tool 
+--some image here
+
+The spec file for the turnstile
+```javascript
+$package com.turnstile
+$class Turnstile
+$initial-state Locked
+$actions lock unlock alarm thankyou
+
+${{
+    Locked {
+        coin => Unlocked {# ctx.unlock(); #},
+        pass => null {# ctx.alarm(); #}
+    },
+    
+    Unlocked {
+        pass => Locked  {# ctx.lock(); #},
+        coin => nil {# ctx.thankyou(); #}
+    }
+}}$
+```
+We save this in a file called turnstile.fsm4j
+Next, we compile the file to generate code using 
+
