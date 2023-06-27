@@ -107,9 +107,10 @@ You can also define a Base state that acts as a failsafe mechanism that contains
 
 ## Example 
 Putting all of this together we will build a basic classical Turnstile finite-state machine using the tool 
-TODO: put turnstile image here
 
-The spec file for the turnstile
+![Turnstile Diagram](/assets/images/turnstile-diagram.svg)
+
+The spec file for the turnstile.
 ```javascript
 $package com.turnstile
 $class Turnstile
@@ -128,12 +129,16 @@ ${{
     }
 }}$
 ```
-We save this in a file called turnstile.fsm4j
-Next, we compile the file to generate the code using the compiler module
+We save this in a file called turnstile.fsm4j.
+Next, we compile the file to generate the code using the compiler module.
 Run ```java -jar compiler.jar turnstile.fsm4j ```
-This generates the following files, notice that each state has it's own class
-TODO: put generated files image here
+This generates the following files, notice that each state has it's own class.
+
+![Generated Turnstile classes](/assets/images/turnstile-classes.png)
+
 Next, we modify the Turnstile class to implement our logic, the Turnstile class by default implements the TurnstileActions interface to ensure we implement the required functionality.
+
+A simple implementation might look as follows.
 ```java
 package com.turnstile;
 
@@ -169,4 +174,21 @@ public class Turnstile implements TurnstileActions {
 	
 }
 ```
+After we modify Turnstile.java file, our Turnstile FSM is ready to use in our project.
 
+# Extending Functionality
+
+There are primarily two ways to extend the functionality of the tool`s capabilities.
+
+### 1. Extending input language parsing
+By default the compiler accepts fsm4j custom language and json formats for input, this functionality 
+can be extended to support other formats such as XML, YAML, ..etc.
+```java
+public interface FsmParser {
+    Fsm parse(File file) throws Exception;
+}
+```
+Additional parsers that implements the FsmParser interface can be developed to support extra FSM description format, as regardless of the input format all parsers return a Fsm object which is a unified representation of the finite state machine that is input language independent.
+
+### 2. Extending target languages code generation
+By default, only java code generation is supported. To support other languages code generation ...
